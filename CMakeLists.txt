@@ -9,4 +9,6 @@ add_executable(bankrupt src/main.cpp
         src/Better.cpp
         src/Race.cpp
         src/Utils.cpp
+        src/Menu.cpp
+        src/Menu.h
 )

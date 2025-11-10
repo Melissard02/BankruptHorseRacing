@@ -1,42 +1,49 @@
 #include <iostream>
 #include <vector>
-#include "Horse.h"
+#include "Menu.h"
 #include "Player.h"
-#include "Race.h"
+#include "Horse.h"
 
 int main() {
-    std::cout << "==== TESTING: HORSE CLASS ====\n";
-    Horse h("Thunder");
-    h.generateStats();
-    h.displayStats();
-    h.addRaceResult(true);   // simulate a win
-    h.displayStats();
+    // --- create player and horses ---
+    Player player("Melissa", 500, 100);
 
-    std::cout << "\n==== TESTING: PLAYER CLASS ====\n";
-    Player p("Melissa", 500, 100);
-    std::cout << "Player: " << p.getName() << "\n";
-    std::cout << "Balance: $" << p.getBalance() << "\n";
-    p.placeBet(50);
-    std::cout << "Balance after bet: $" << p.getBalance() << "\n";
-
-    std::cout << "\n==== TESTING: RACE CLASS ====\n";
     std::vector<Horse> horses = {
-        Horse("Lightning"),
         Horse("Thunder"),
-        Horse("Biscuit")
+        Horse("Cracker"),
+        Horse("Flash")
     };
-
-    // Generate stats for each horse
-    for (auto& horse : horses) {
-        horse.generateStats();
-        horse.displayStats();
+    for (auto& h : horses) {
+        h.generateStats();
     }
 
-    Race race(horses);
-    race.startRace();
+    // --- start menu system ---
+    Menu menu;
+    bool running = true;
 
-    int winner = race.getWinnerIndex();
-    std::cout << "Winner: " << horses[winner].getName() << "\n";
+    while (running) {
+        int choice = menu.mainMenu();
+        switch (choice) {
+        case 1:
+            menu.playerMenu(player);
+            break;
+        case 2:
+            menu.betMenu(player, horses);
+            break;
+        case 3:
+            menu.horseMenu(horses);
+            break;
+        case 4:
+            menu.bankMenu(player);
+            break;
+        case 0:
+            running = false;
+            break;
+        default:
+            break;
+        }
+    }
 
+    std::cout << "\nThanks for playing, " << player.getName() << "!\n";
     return 0;
 }

@@ -23,20 +23,17 @@ class Player {
   int getPaid();
   int checkPay();
 
-  void placeBet(int amount);
-  void addMoney(int amount);
-  void subtractMoney(int amount);
   bool placeBet(int amount, int horseIndex);
-  void clearBets();
+  void clearBet();
+
 
   // Getters/Setters
   std::string getName() const;
   int getBalance() const;
   int getIncome() const;
   int getBets() const;
-  int getBetHorseIndex() const;
   int getBetAmount() const;
-
+  int getBetHorseIndex() const;
 };
 
 #endif //BANKRUPT_PLAYER_H

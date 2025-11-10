@@ -6,7 +6,7 @@ Better::Better(const std::string& name, int balance)
 
 int Better::makeRandomBet(int minBet, int maxBet) {
   int amount = getRandom(minBet, maxBet);
-  placeBet(amount);
+  placeBet(amount, 0);
   return amount;
 }
 
