@@ -96,13 +96,17 @@ void Menu::betMenu(Player &player, const std::vector<Horse> &horses) const {
 
         if (choice == 1) {
             clearScreen();
-            for (size_t i = 0; i < horses.size(); ++i) {
-                std::cout << "[" << i << "] " << horses[i].getName() << "\n";
+            for (const auto &horse : horses) {
+                horse.displayStats();
             }
             std::cout << "\nPress Enter to return.";
             std::cin.get();
         } else if (choice == 2) {
             clearScreen();
+            std::cout << "Horse List:\n";
+            for (size_t i = 0; i < horses.size(); i++) {
+                std::cout << "[" << i << "] " << horses[i].getName() << "\n";
+            }
             std::cout << "Enter horse number to bet on: ";
             int horseIndex;
             std::cin >> horseIndex;
@@ -173,7 +177,7 @@ void Menu::horseMenu(const std::vector<Horse> &horses) const {
 
         clearScreen();
         if (horses.empty()) {
-            std::cout << "No horses available!\n";
+            std::cout << "If this shows up something is very wrong\n";
         } else if (choice == 1) {
             std::cout << "Horse List:\n";
             for (size_t i = 0; i < horses.size(); i++) {
