@@ -33,6 +33,7 @@ void Horse::displayStats() const {
    std::cout << "Speed: " << speed << "\n";
    std::cout << "Stamina: " << stamina << "\n";
    std::cout << "Popularity: " << popularity << "\n";
+   // Luck will be a hidden stat
    std::cout << "Luck: " << luck << "\n";
    std::cout << "Wins: " << wins << "/" << races
    << " (Win Rate: " << winRate() * 100 << "%)\n\n";

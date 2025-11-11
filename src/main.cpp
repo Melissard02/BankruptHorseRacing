@@ -3,6 +3,7 @@
 #include "Menu.h"
 #include "Player.h"
 #include "Horse.h"
+#include "Race.h"
 
 int main() {
     // --- create player and horses ---
@@ -18,6 +19,7 @@ int main() {
     }
 
     // --- start menu system ---
+    Race race(horses);
     Menu menu;
     bool running = true;
 
@@ -36,6 +38,8 @@ int main() {
         case 4:
             menu.bankMenu(player);
             break;
+        case 5:
+            menu.raceMenu(race, horses);
         case 0:
             running = false;
             break;

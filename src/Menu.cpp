@@ -1,6 +1,7 @@
 #include "Menu.h"
 #include "Player.h"
 #include "Horse.h"
+#include "Race.h"
 #include <iostream>
 #include <vector>
 #include <limits>
@@ -17,11 +18,12 @@ void Menu::clearScreen() const {
 // ---------------------- MAIN MENU ----------------------
 int Menu::mainMenu() const {
     clearScreen();
-    std::cout << "=== MAIN MENU ===\n";
+    std::cout << "=== BANKRUPT RACING ===\n";
     std::cout << "1. Player Info\n";
-    std::cout << "2. Betting Menu\n";
+    std::cout << "2. Betting\n";
     std::cout << "3. Horse\n";
     std::cout << "4. Bank\n";
+    std::cout << "5. Start Race\n";
     std::cout << "0. Exit\n";
     std::cout << "\nSelect: ";
 
@@ -75,7 +77,7 @@ void Menu::playerMenu(const Player &player) const {
 void Menu::betMenu(Player &player, const std::vector<Horse> &horses) const {
     while (true) {
         clearScreen();
-        std::cout << "=== BETTING MENU ===\n";
+        std::cout << "=== BETTING ===\n";
         std::cout << "1. View Horses\n";
         std::cout << "2. Place Bet\n";
         std::cout << "0. Return\n";
@@ -105,11 +107,12 @@ void Menu::betMenu(Player &player, const std::vector<Horse> &horses) const {
             clearScreen();
             std::cout << "Horse List:\n";
             for (size_t i = 0; i < horses.size(); i++) {
-                std::cout << "[" << i << "] " << horses[i].getName() << "\n";
+                std::cout << "[" << (i + 1) << "] " << horses[i].getName() << "\n";
             }
             std::cout << "Enter horse number to bet on: ";
             int horseIndex;
             std::cin >> horseIndex;
+            horseIndex--;
 
             if (std::cin.fail()) {
                 std::cin.clear();
@@ -117,14 +120,13 @@ void Menu::betMenu(Player &player, const std::vector<Horse> &horses) const {
                 continue;
             }
 
-            if (horseIndex < 0 ||
-                horseIndex >= static_cast<int>(horses.size())) {
+            if (horseIndex < 0 || horseIndex >= static_cast<int>(horses.size())) {
                 std::cout << "Invalid horse selection!\n";
-                std::cout << "\nPress Enter to return.";
                 std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 std::cin.get();
                 continue;
             }
+
 
             std::cout << "Enter bet amount: ";
             int amount;
@@ -156,7 +158,7 @@ void Menu::betMenu(Player &player, const std::vector<Horse> &horses) const {
 void Menu::horseMenu(const std::vector<Horse> &horses) const {
     while (true) {
         clearScreen();
-        std::cout << "=== HORSE MENU ===\n";
+        std::cout << "=== HORSE ===\n";
         std::cout << "1. Horse List\n";
         std::cout << "2. View Stats\n";
         std::cout << "0. Return\n";
@@ -181,7 +183,7 @@ void Menu::horseMenu(const std::vector<Horse> &horses) const {
         } else if (choice == 1) {
             std::cout << "Horse List:\n";
             for (size_t i = 0; i < horses.size(); i++) {
-                std::cout << "[" << i << "] " << horses[i].getName() << "\n";
+                std::cout << "[" << (i + 1) << "] " << horses[i].getName() << "\n";
             }
         } else if (choice == 2) {
             for (const auto &horse : horses) {
@@ -200,7 +202,7 @@ void Menu::horseMenu(const std::vector<Horse> &horses) const {
 void Menu::bankMenu(const Player &player) const {
     while (true) {
         clearScreen();
-        std::cout << "=== BANK MENU ===\n";
+        std::cout << "=== BANK ===\n";
         std::cout << "Balance: $" << player.getBalance() << "\n";
         std::cout << "Income:  $" << player.getIncome() << "\n";
         std::cout << "0. Return\n";
@@ -221,5 +223,47 @@ void Menu::bankMenu(const Player &player) const {
 
         std::cout << "Future logic will be here. Press Enter";
         std::cin.get();
+    }
+}
+
+// ---------------- RACE MENU -------------------------
+void Menu::raceMenu(Race &race, const std::vector<Horse>& horses) const {
+    while (true) {
+        clearScreen();
+        std::cout << "=== RACE ===\n";
+        std::cout << "\nFeatured Racers:\n";
+        for (size_t i = 0; i < horses.size(); i++) {
+            std::cout << "[" << (i + 1) << "] " << horses[i].getName() << "\n";
+        }
+
+        std::cout << "\n1. Start Race\n";
+        std::cout << "0. Return\n";
+
+
+
+        int choice{};
+        std::cin >> choice;
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            continue;
+        }
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        if (choice == 0) {
+            break;
+        }
+        if (choice == 1) {
+            clearScreen();
+            race.startRace();
+            int winner = race.getWinnerIndex();
+
+            std::cout << "\n Winner: " << horses[winner].getName() << "!\n";
+            std::cout << "\nPress enter to return.";
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.get();
+
+        }
     }
 }
