@@ -1,4 +1,5 @@
 #include "Menu.h"
+#include "Better.h"
 #include "Player.h"
 #include "Horse.h"
 #include "Race.h"
@@ -40,7 +41,7 @@ int Menu::mainMenu() const {
 }
 
 // ---------------------- PLAYER MENU ----------------------
-void Menu::playerMenu(const Player &player) const {
+void Menu::playerMenu(const Player &player, const std::vector<Horse> &horses) const {
     while (true) {
         clearScreen();
         std::cout << "=== PLAYER ===\n";
@@ -53,7 +54,7 @@ void Menu::playerMenu(const Player &player) const {
 
         if (betIdx >= 0 && betAmt > 0) {
             std::cout << "Current Bet: $" << betAmt
-                      << " on horse index " << betIdx << "\n";
+                      << " on " << horses[betIdx].getName() << "\n";
         } else {
             std::cout << "Current Bet: (none)\n";
         }
@@ -227,7 +228,7 @@ void Menu::bankMenu(const Player &player) const {
 }
 
 // ---------------- RACE MENU -------------------------
-void Menu::raceMenu(Race &race, const std::vector<Horse>& horses) const {
+void Menu::raceMenu(Race &race, const std::vector<Horse>& horses, Player &player, std::vector<Better>& npcs) const {
     while (true) {
         clearScreen();
         std::cout << "=== RACE ===\n";
@@ -238,8 +239,6 @@ void Menu::raceMenu(Race &race, const std::vector<Horse>& horses) const {
 
         std::cout << "\n1. Start Race\n";
         std::cout << "0. Return\n";
-
-
 
         int choice{};
         std::cin >> choice;
@@ -256,14 +255,47 @@ void Menu::raceMenu(Race &race, const std::vector<Horse>& horses) const {
         }
         if (choice == 1) {
             clearScreen();
+            std::cout << "\nCollecting Bets!\n";
+            bool anyBets = false;
+
+            for (auto& npc : npcs) {
+                if (npc.getBalance() < 50) continue; // skip broke NPCs
+
+                int horseIndex = npc.chooseRandomHorse(horses.size());
+                int amount = npc.makeRandomBet(50, 150);
+
+                if (amount > 0) {
+                    std::cout << npc.getName() << " bets $" << amount
+                              << " on " << horses[horseIndex].getName() << "\n";
+                    anyBets = true;
+                }
+            }
+
+            if (!anyBets) {
+                std::cout << "No other bets placed this round.\n";
+            }
+
+
             race.startRace();
             int winner = race.getWinnerIndex();
 
             std::cout << "\n Winner: " << horses[winner].getName() << "!\n";
-            std::cout << "\nPress enter to return.";
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            std::cin.get();
 
+
+            if (player.getBetHorseIndex() == winner) {
+                int payout = player.getBetAmount() * 2; //Modifier will change later depending on ratios
+                std::cout << "You won $" << payout << "!\n";
+                player.addBalance(payout);
+            } else if (player.getBetAmount() == 0){
+                std::cout << "You didn't place a bet";
+            } else {
+                std::cout << "You lost your bet of $" << player.getBetAmount() << "!\n";
+            }
+
+            player.clearBet();
+            std::cout << "\nPress enter to return.";
+            // std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.get();
         }
     }
 }

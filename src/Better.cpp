@@ -5,7 +5,11 @@ Better::Better(const std::string& name, int balance)
     : Player(name, balance, 0) {}
 
 int Better::makeRandomBet(int minBet, int maxBet) {
-  int amount = getRandom(minBet, maxBet);
+
+  if (getBalance() < minBet) {
+    return 0;
+  }
+  int amount = getRandom(minBet, std::min(maxBet, getBalance()));
   placeBet(amount, 0);
   return amount;
 }

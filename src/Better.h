@@ -10,6 +10,7 @@
 class Better : public Player {
   public:
     Better(const std::string& name, int balance);
+    explicit Better(const char * str);
 
     int makeRandomBet(int minBet, int maxBet);
     int chooseRandomHorse(int totalHorses);

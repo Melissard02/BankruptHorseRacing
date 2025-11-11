@@ -10,6 +10,9 @@ Race::Race(const std::vector<Horse>& horses)
     : horses(horses), progress(horses.size(), 0), winnerIndex(-1) {}
 
 void Race::startRace(int rounds) {
+    std:fill(progress.begin(), progress.end(), 0);
+    winnerIndex = -1;
+
     if (horses.empty()) {
         std::cout << "No horses in this race.\n";
         winnerIndex = -1;
@@ -31,8 +34,6 @@ void Race::startRace(int rounds) {
         std::cout << "\nRound " << r << ":\n";
 
         for (size_t i = 0; i < horses.size(); ++i) {
-            // Stat-based movement + a little randomness
-            // Heavier weight on speed; stamina next; luck small; plus random boost
             int boost = getRandom(1, 10);
             int gain  = static_cast<int>(
                 horses[i].getSpeed()   * 0.6 +
@@ -54,13 +55,10 @@ void Race::startRace(int rounds) {
 
         std::this_thread::sleep_for(std::chrono::milliseconds(600));
     }
-
-    // Determine winner by max progress
     winnerIndex = 0;
     for (size_t i = 1; i < progress.size(); ++i) {
         if (progress[i] > progress[winnerIndex]) winnerIndex = static_cast<int>(i);
     }
-
     std::cout << "\n🎉 Winner: " << horses[winnerIndex].getName() << "!\n";
 }
 

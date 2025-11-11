@@ -27,6 +27,10 @@ void Player::clearBet() {
    betHorseIndex = -1;
  }
 
+void Player::addBalance(int amount) {
+   balance += amount;
+ }
+
 
 std::string Player::getName() const{ return name; }
 int Player::getBalance() const{ return balance; }

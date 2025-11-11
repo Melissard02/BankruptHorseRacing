@@ -1,14 +1,17 @@
-#include <iostream>
-#include <vector>
+#include "Better.h"
+#include "Horse.h"
 #include "Menu.h"
 #include "Player.h"
-#include "Horse.h"
 #include "Race.h"
+#include "Better.h"
+#include <iostream>
+#include <vector>
 
 int main() {
-    // --- create player and horses ---
+    // --- CREATE PLAYER ---
     Player player("Melissa", 500, 100);
 
+    // --- CREATE HORSES ---
     std::vector<Horse> horses = {
         Horse("Thunder"),
         Horse("Cracker"),
@@ -17,6 +20,14 @@ int main() {
     for (auto& h : horses) {
         h.generateStats();
     }
+
+    // --- CREATE NPC BETTERS ---
+    std::vector<Better> npcs = {
+        Better("Candle", 300),
+        Better("Mentos", 200),
+        Better("Propel", 1000),
+        Better("Mr. Monopoly", 1000000)
+    };
 
     // --- start menu system ---
     Race race(horses);
@@ -27,7 +38,7 @@ int main() {
         int choice = menu.mainMenu();
         switch (choice) {
         case 1:
-            menu.playerMenu(player);
+            menu.playerMenu(player, horses);
             break;
         case 2:
             menu.betMenu(player, horses);
@@ -39,7 +50,8 @@ int main() {
             menu.bankMenu(player);
             break;
         case 5:
-            menu.raceMenu(race, horses);
+            menu.raceMenu(race, horses, player, npcs);
+            break;
         case 0:
             running = false;
             break;

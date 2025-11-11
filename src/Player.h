@@ -22,6 +22,7 @@ class Player {
 
   int getPaid();
   int checkPay();
+  void addBalance(int amount);
 
   bool placeBet(int amount, int horseIndex);
   void clearBet();
