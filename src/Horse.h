@@ -9,6 +9,7 @@
 
 class Horse {
 private:
+  bool legendary;
   std::string name;
   int speed;
   int stamina;
@@ -19,7 +20,8 @@ private:
   int races;
 
   public:
-  Horse(const std::string& name);
+  Horse(const std::string& name, bool legendary = false);
+  bool isLegendary() const;
 
   void generateStats();
   void addRaceResult(bool won);

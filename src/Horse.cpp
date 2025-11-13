@@ -6,11 +6,28 @@
 #include "Utils.h"
 #include <iostream>
 
- Horse::Horse(const std::string& name)
-   : name(name), speed(0), stamina(0), popularity(0), luck(0), wins(0), races(0)  {  }
+ Horse::Horse(const std::string& name, bool legendary)
+   : name(name), speed(0), stamina(0), popularity(0), luck(0), wins(0), races(0), legendary(legendary) {}
 
 void Horse::generateStats() {
-   speed = getRandom(60, 100);
+   if (legendary) {
+     if (name == "Seabiscuit") {
+       speed = 90; stamina = 90; popularity = 8; luck = 5;
+     } else if (name == "Shadowfax") {
+       speed = 100; stamina = 90; popularity = 10; luck = 7;
+     } else if (name == "Spirit") {
+       speed = 80; stamina = 90; popularity = 10; luck = 6;
+     } else if (name == "Twilight Sparkle") {
+       speed = 99; stamina = 70; popularity = 9; luck = 7;
+     } else if (name == "Epona") {
+       speed = 70; stamina = 100; popularity = 9; luck = 5;
+     } else if (name == "Potoooooooo") {
+       speed = 80; stamina = 80; popularity = 8; luck = 5;
+     } else if (name == "Spamton G. Spamton") {
+       speed = 50; stamina = 50; popularity = 1; luck = 0;
+     }
+   }
+   speed = getRandom(50, 100);
    stamina = getRandom(50, 100);
    popularity = getRandom(1, 10);
    luck = getRandom(0, 5);
@@ -46,3 +63,4 @@ int Horse::getPopularity() const { return popularity; }
 int Horse::getLuck() const { return luck; }
 int Horse::getWins() const { return wins; }
 int Horse::getRaces() const { return races; }
+bool Horse::isLegendary() const { return legendary; }

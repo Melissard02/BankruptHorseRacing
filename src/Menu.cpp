@@ -1,11 +1,14 @@
 #include "Menu.h"
 #include "Better.h"
-#include "Player.h"
 #include "Horse.h"
+#include "Player.h"
 #include "Race.h"
+#include "Utils.h"
+
 #include <iostream>
-#include <vector>
 #include <limits>
+#include <thread>
+#include <vector>
 
 // ---------------------- Utility ----------------------
 void Menu::clearScreen() const {
@@ -107,13 +110,37 @@ void Menu::betMenu(Player &player, const std::vector<Horse> &horses) const {
         } else if (choice == 2) {
             clearScreen();
             std::cout << "Horse List:\n";
+            std::vector<int> bettableIndexes;
             for (size_t i = 0; i < horses.size(); i++) {
-                std::cout << "[" << (i + 1) << "] " << horses[i].getName() << "\n";
+                if (!horses[i].isLegendary()) {
+                    bettableIndexes.push_back(i);
+                    std::cout << "[" << bettableIndexes.size() << "] "
+                              << horses[i].getName() << "\n";
+                }
             }
+
+            if (bettableIndexes.empty()) {
+                std::cout << "No eligible horses to bet on!\n";
+                std::cout << "\nPress Enter to return.";
+                std::cin.get();
+                return;
+            }
+
             std::cout << "Enter horse number to bet on: ";
-            int horseIndex;
-            std::cin >> horseIndex;
-            horseIndex--;
+            int choice;
+            std::cin >> choice;
+            choice--; // Convert to zero-based
+
+            if (choice < 0 || choice >= static_cast<int>(bettableIndexes.size())) {
+                std::cout << "Invalid horse selection!\n";
+                std::cout << "\nPress Enter to return.";
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cin.get();
+                continue;
+            }
+
+            int horseIndex = bettableIndexes[choice]; // Map back to real index
+
 
             if (std::cin.fail()) {
                 std::cin.clear();
@@ -228,7 +255,9 @@ void Menu::bankMenu(const Player &player) const {
 }
 
 // ---------------- RACE MENU -------------------------
-void Menu::raceMenu(Race &race, const std::vector<Horse>& horses, Player &player, std::vector<Better>& npcs) const {
+void Menu::raceMenu(Race &race, const std::vector<Horse>& horses,
+              Player &player, std::vector<Better>& npcs,
+              bool legendarySpawned, const std::string& legendaryName) const {
     while (true) {
         clearScreen();
         std::cout << "=== RACE ===\n";
@@ -255,47 +284,74 @@ void Menu::raceMenu(Race &race, const std::vector<Horse>& horses, Player &player
         }
         if (choice == 1) {
             clearScreen();
+            // 🔥 Show announcement if there’s a legendary horse
+            if (legendarySpawned) {
+                std::cout << "\n⚡ A NEW CHALLENGER APPROACHES! ⚡\n";
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::cout << "\nThe LEGENDARY horse " << legendaryName
+                          << " has entered the race!\n";
+                std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+            }
+        }
+
             std::cout << "\nCollecting Bets!\n";
             bool anyBets = false;
 
-            for (auto& npc : npcs) {
-                if (npc.getBalance() < 50) continue; // skip broke NPCs
 
-                int horseIndex = npc.chooseRandomHorse(horses.size());
+            // 💸 NPC betting loop
+            for (auto& npc : npcs) {
+                // filter out legendary horses first
+                std::vector<int> bettableNPCs;
+                for (size_t i = 0; i < horses.size(); i++) {
+                    if (!horses[i].isLegendary()) {
+                        bettableNPCs.push_back(i);
+                    }
+                }
+
+                // skip NPCs if no valid horses or no funds
+                if (bettableNPCs.empty() || npc.getBalance() < 50)
+                    continue;
+
+                int horse = bettableNPCs[npc.chooseRandomHorse(bettableNPCs.size())];
                 int amount = npc.makeRandomBet(50, 150);
 
-                if (amount > 0) {
-                    std::cout << npc.getName() << " bets $" << amount
-                              << " on " << horses[horseIndex].getName() << "\n";
-                    anyBets = true;
-                }
+                std::cout << npc.getName() << " bets $" << amount
+                          << " on " << horses[horse].getName() << "\n";
+
+                anyBets = true;
             }
 
             if (!anyBets) {
                 std::cout << "No other bets placed this round.\n";
             }
 
-
+            // 🏁 Start the race
             race.startRace();
             int winner = race.getWinnerIndex();
 
-            std::cout << "\n Winner: " << horses[winner].getName() << "!\n";
-
+            std::cout << "\nWinner: " << horses[winner].getName() << "!\n";
 
             if (player.getBetHorseIndex() == winner) {
-                int payout = player.getBetAmount() * 2; //Modifier will change later depending on ratios
+                int payout = player.getBetAmount() * 2;
                 std::cout << "You won $" << payout << "!\n";
                 player.addBalance(payout);
-            } else if (player.getBetAmount() == 0){
-                std::cout << "You didn't place a bet";
+            } else if (player.getBetAmount() == 0) {
+                std::cout << "You didn't place a bet.\n";
             } else {
                 std::cout << "You lost your bet of $" << player.getBetAmount() << "!\n";
             }
-
             player.clearBet();
-            std::cout << "\nPress enter to return.";
-            // std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            // NPC payouts
+            for (auto& npc : npcs) {
+                if (npc.getBetHorseIndex() == winner) {
+                    int payout = npc.getBetAmount() * 2;
+                    npc.addBalance(payout);
+                }
+                npc.clearBet();
+            }
+
+            std::cout << "\nPress Enter to return.";
             std::cin.get();
         }
     }
-}

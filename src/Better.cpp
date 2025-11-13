@@ -5,7 +5,6 @@ Better::Better(const std::string& name, int balance)
     : Player(name, balance, 0) {}
 
 int Better::makeRandomBet(int minBet, int maxBet) {
-
   if (getBalance() < minBet) {
     return 0;
   }

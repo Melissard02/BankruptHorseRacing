@@ -3,7 +3,9 @@
 #include "Menu.h"
 #include "Player.h"
 #include "Race.h"
-#include "Better.h"
+#include "Utils.h"
+
+#include <bits/this_thread_sleep.h>
 #include <iostream>
 #include <vector>
 
@@ -15,10 +17,37 @@ int main() {
     std::vector<Horse> horses = {
         Horse("Thunder"),
         Horse("Cracker"),
-        Horse("Flash")
+        Horse("Flash"),
+        Horse("Lantern"),
+        Horse("Werthers"),
+        Horse("Seltzer"),
+        Horse("Pumpkin"),
+        Horse("Echo")
     };
     for (auto& h : horses) {
         h.generateStats();
+    }
+
+    // --- LEGENDARY HORSES ---
+    bool legendarySpawned = false;
+    std::string legendaryName;
+
+    if (getRandom(1, 100) <= 5) {
+        std::vector<Horse> legendaries = {
+            Horse("Seabiscuit", true),
+            Horse("Shadowfax", true),
+            Horse("Spirit", true),
+            Horse("Twilight Sparkle", true),
+            Horse("Epona", true),
+            Horse("Potoooooooo", true),
+            Horse("Spamton G. Spamton", true),
+        };
+
+        Horse legendaryHorse = legendaries[getRandom(0, legendaries.size() - 1)];
+        legendaryHorse.generateStats();
+        legendaryName = legendaryHorse.getName();
+        horses.push_back(legendaryHorse);
+        legendarySpawned = true;
     }
 
     // --- CREATE NPC BETTERS ---
@@ -50,8 +79,10 @@ int main() {
             menu.bankMenu(player);
             break;
         case 5:
-            menu.raceMenu(race, horses, player, npcs);
+            race = Race(horses);
+            menu.raceMenu(race, horses, player, npcs, legendarySpawned, legendaryName);
             break;
+
         case 0:
             running = false;
             break;
