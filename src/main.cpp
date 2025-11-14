@@ -4,12 +4,19 @@
 #include "Player.h"
 #include "Race.h"
 #include "Utils.h"
-
 #include <bits/this_thread_sleep.h>
 #include <iostream>
 #include <vector>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 int main() {
+#ifdef _WIN32
+    SetConsoleOutputCP(CP_UTF8);
+#endif
+
     // --- CREATE PLAYER ---
     Player player("Melissa", 500, 100);
 

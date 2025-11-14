@@ -294,6 +294,7 @@ void Menu::raceMenu(Race &race, const std::vector<Horse>& horses,
             }
         }
 
+            std::cout << "=== BANKRUPT DERBY ===\n";
             std::cout << "\nCollecting Bets!\n";
             bool anyBets = false;
 
@@ -324,6 +325,19 @@ void Menu::raceMenu(Race &race, const std::vector<Horse>& horses,
             if (!anyBets) {
                 std::cout << "No other bets placed this round.\n";
             }
+
+            std::cout << "\n All bets are in! Press ENTER to start the race...";
+            std::cin.get();
+
+            for (int i = 3; i > 0; --i) {
+                clearScreen();
+                std::cout << " THE RACE BEGINS IN . . . "<< i <<" \n";
+                std::this_thread::sleep_for(std::chrono::seconds(1));
+            }
+
+            clearScreen();
+            std::cout << "GO!!!\n";
+            std::this_thread::sleep_for(std::chrono::milliseconds(600));
 
             // 🏁 Start the race
             race.startRace();

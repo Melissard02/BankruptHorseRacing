@@ -56,6 +56,17 @@ void Horse::displayStats() const {
    << " (Win Rate: " << winRate() * 100 << "%)\n\n";
  }
 
+void Horse::appendMedal(const std::string& medal) {
+   name = medal + " " + name;
+ }
+
+void Horse::clearMedal() {
+   size_t pos = name.find(" ");
+   if (pos != std::string::npos) {
+     name = name.substr(pos + 1);
+   }
+ }
+
 std::string Horse::getName() const { return name; }
 int Horse::getSpeed() const { return speed; }
 int Horse::getStamina() const { return stamina; }

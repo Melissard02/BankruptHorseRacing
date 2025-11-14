@@ -1,17 +1,21 @@
 #include "Race.h"
 #include "Utils.h"
+#include "Horse.h"
 
 #include <iostream>
 #include <thread>
 #include <chrono>
 #include <iomanip>  // std::setw, std::left
+#include <vector>
+#include <algorithm>
 
 Race::Race(const std::vector<Horse>& horses)
     : horses(horses), progress(horses.size(), 0), winnerIndex(-1) {}
 
-void Race::startRace(int rounds) {
-    std:fill(progress.begin(), progress.end(), 0);
-    winnerIndex = -1;
+void Race::startRace() {
+    std::string horseIcon = "🐎";
+    std::string flagIcon  = "🏁";
+    std::string trophyIcon = "🏆";
 
     if (horses.empty()) {
         std::cout << "No horses in this race.\n";
@@ -19,48 +23,96 @@ void Race::startRace(int rounds) {
         return;
     }
 
-    // Figure out name column width for clean alignment
-    size_t nameWidth = 0;
-    for (const auto& h : horses) {
-        if (h.getName().size() > nameWidth) nameWidth = h.getName().size();
-    }
+    const int TRACK_LENGTH = 50; // number of steps from start to finish
+    progress.assign(horses.size(), 0);
+    winnerIndex = -1;
+    std::vector<int> finishedOrder;
 
-    std::cout << "\n🏁 Race starting! (" << horses.size() << " horses)\n";
+    std::cout << flagIcon << " THE BANKRUPT DERBY BEGINS! " << flagIcon << "\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(800));
 
-    // Scale so bars stay readable in console
-    const int TRACK_SCALE = 12; // bigger = shorter bars
+    bool allFinished = false;
+    int round = 0;
 
-    for (int r = 1; r <= rounds; r++) {
-        std::cout << "\nRound " << r << ":\n";
+    while (!allFinished) {
+        allFinished = true;
+        ++round;
 
+        // UPDATE HORSE PROGRESS
         for (size_t i = 0; i < horses.size(); ++i) {
-            int boost = getRandom(1, 10);
-            int gain  = static_cast<int>(
-                horses[i].getSpeed()   * 0.6 +
-                horses[i].getStamina() * 0.3 +
-                horses[i].getLuck()    * 0.1 +
-                boost
-            );
+            if (progress[i] < TRACK_LENGTH) {
+                allFinished = false;
+                int baseSpeed = horses[i].getSpeed();
+                int baseStamina = horses[i].getStamina();
+                int baseLuck = horses[i].getLuck();
 
-            progress[i] += gain;
+                double rawGain = (baseSpeed * 0.05) + (baseStamina * 0.03) + (baseLuck * 0.02);
+                int boost = getRandom(1, 4);
+                int gain = static_cast<int>(rawGain / 2 + boost);
 
-            int barLen = progress[i] / TRACK_SCALE;
-            if (barLen < 0) barLen = 0;
-            std::string bar(static_cast<size_t>(barLen), '-');
+                if (progress[i] > TRACK_LENGTH / 2)
+                    gain = std::max(1, gain - getRandom(0,2));
 
-            std::cout << std::left << std::setw(static_cast<int>(nameWidth))
-                      << horses[i].getName()
-                      << " | " << bar << "🏇\n";
+                progress[i] = std::min(progress[i] + gain, TRACK_LENGTH);
+                if (progress[i] >= TRACK_LENGTH &&
+                std::find(finishedOrder.begin(), finishedOrder.end(), i) == finishedOrder.end())
+                {
+                    finishedOrder.push_back(static_cast<int>(i));
+                    int place = static_cast<int>(finishedOrder.size());
+
+                    if (place == 1) horses[i].appendMedal("🥇");
+                    else if (place == 2) horses[i].appendMedal("🥈");
+                    else if (place == 3) horses[i].appendMedal("🥉");
+                }
+            }
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(600));
+    // clear screen between frames
+    #ifdef _WIN32
+            system("cls");
+    #else
+            system("clear");
+    #endif
+
+        // DISPLAY THE TRACK
+        std::cout << flagIcon <<" BANKRUPT DERBY "<< flagIcon <<" \n";
+        std::cout << std::string(TRACK_LENGTH + 20, '-') << "\n";
+
+        for (size_t i = 0; i < horses.size(); ++i) {
+            int pos = std::min(progress[i], TRACK_LENGTH - 1);
+
+            std::string track(TRACK_LENGTH, '-');
+            track += "|";
+
+            track.replace(pos, 1, horseIcon);
+
+            // PRINT MEDAL NAME TRACK
+            std::cout << std::left << std::setw(20)
+            << horses[i].getName()
+            << " | " << track << "\n";
+        }
+
+        std::cout << std::string(TRACK_LENGTH + 20, '-') << "\n";
+        std::cout << "Round " << round << "\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
-    winnerIndex = 0;
-    for (size_t i = 1; i < progress.size(); ++i) {
-        if (progress[i] > progress[winnerIndex]) winnerIndex = static_cast<int>(i);
+
+    // DETERMINE WINNER
+    if (!finishedOrder.empty()) {
+        winnerIndex = finishedOrder[0];
+    } else {
+        winnerIndex = -1;
     }
-    std::cout << "\n🎉 Winner: " << horses[winnerIndex].getName() << "!\n";
+
+    std::cout << "\n" << trophyIcon <<" Winner: " << horses[winnerIndex].getName() << "!\n";
+    std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+
+    // CLEAR MEDALS FROM HORSE NAME
+    for (auto& horse : horses) {
+        horse.clearMedal();
+    }
 }
+
 
 int Race::getWinnerIndex() const {
     return winnerIndex;

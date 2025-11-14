@@ -23,6 +23,9 @@ private:
   Horse(const std::string& name, bool legendary = false);
   bool isLegendary() const;
 
+  void appendMedal(const std::string& medal);
+  void clearMedal();
+
   void generateStats();
   void addRaceResult(bool won);
   float winRate() const;

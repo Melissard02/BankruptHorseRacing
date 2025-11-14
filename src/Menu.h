@@ -8,7 +8,7 @@
 class Player;
 class Horse;
 class Race;
-#include "Better.h";
+#include "Better.h"
 #include <vector>
 
 class Menu {
