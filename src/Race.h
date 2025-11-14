@@ -15,7 +15,7 @@ private:
   int winnerIndex;
 
 public:
-  Race(const std::vector<Horse>& horses);
+  Race(std::vector<Horse>& horses);
 
   void startRace();
   int getWinnerIndex() const;

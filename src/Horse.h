@@ -16,7 +16,7 @@ private:
   int popularity;
   int luck;
 
-  int wins;
+  int wins = 0;
   int races;
 
   public:
@@ -25,6 +25,9 @@ private:
 
   void appendMedal(const std::string& medal);
   void clearMedal();
+
+  void addWin() { wins++; }
+
 
   void generateStats();
   void addRaceResult(bool won);
