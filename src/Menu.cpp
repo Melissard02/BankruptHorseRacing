@@ -1,4 +1,6 @@
 #include "Menu.h"
+
+#include "Bank.h"
 #include "Better.h"
 #include "Horse.h"
 #include "Player.h"
@@ -227,12 +229,15 @@ void Menu::horseMenu(const std::vector<Horse> &horses) const {
 }
 
 // ---------------------- BANK MENU ----------------------
-void Menu::bankMenu(const Player &player) const {
+void Menu::bankMenu(const Player &player, Bank &bank) const {
     while (true) {
         clearScreen();
         std::cout << "=== BANK ===\n";
-        std::cout << "Balance: $" << player.getBalance() << "\n";
+        std::cout << "Checking: $" << player.getBalance() << "\n";
+        std::cout << "Savings: $" << bank.getSavings() << "\n";
         std::cout << "Income:  $" << player.getIncome() << "\n";
+        std::cout << "1. Deposit" << "\n";
+        std::cout << "2. Withdraw" << "\n";
         std::cout << "0. Return\n";
         std::cout << "Select: ";
 
@@ -248,9 +253,50 @@ void Menu::bankMenu(const Player &player) const {
 
         if (choice == 0)
             break;
+        if (choice == 1) {
+            std::cout << "Select Account to deposit to: " << "\n";
+            std::cout << "1. Checking\n";
+            std::cout << "2. Savings\n";
 
-        std::cout << "Future logic will be here. Press Enter";
-        std::cin.get();
+            int account{};
+            std::cin >> account;
+            if (account == 1) {
+                int amt;
+                std::cout << "Enter amount to deposit: ";
+                std::cin >> amt;
+
+                bank.Deposit(amt, false);
+            } else if (account == 2) {
+                int amt;
+                std::cout << "Enter amount to deposit: ";
+                std::cin >> amt;
+
+                bank.Deposit(amt, true);
+            }
+
+        }
+        if (choice == 2) {
+            std::cout << "Select Account to withdraw from: " << "\n";
+            std::cout << "1. Checking\n";
+            std::cout << "2. Savings\n";
+
+            int account{};
+            std::cin >> account;
+            if (account == 1) {
+                int amt;
+                std::cout << "Enter amount to withdraw: ";
+                std::cin >> amt;
+
+                bank.Withdraw(amt, false);
+            } else if (account == 2) {
+                int amt;
+                std::cout << "Enter amount to withdraw: ";
+                std::cin >> amt;
+
+                bank.Withdraw(amt, true);
+            }
+        }
+
     }
 }
 
@@ -284,7 +330,7 @@ void Menu::raceMenu(Race &race, const std::vector<Horse>& horses,
         }
         if (choice == 1) {
             clearScreen();
-            // 🔥 Show announcement if there’s a legendary horse
+            // Show announcement if there’s a legendary horse
             if (legendarySpawned) {
                 std::cout << "\n⚡ A NEW CHALLENGER APPROACHES! ⚡\n";
                 std::this_thread::sleep_for(std::chrono::milliseconds(1000));

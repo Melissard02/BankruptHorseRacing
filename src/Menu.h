@@ -4,6 +4,7 @@
 
 #ifndef BANKRUPT_MENU_H
 #define BANKRUPT_MENU_H
+#include "Bank.h"
 
 class Player;
 class Horse;
@@ -17,7 +18,7 @@ class Menu {
   void playerMenu(const Player& player, const std::vector<Horse> &horses) const;
   void betMenu(Player& player, const std::vector<Horse>& horses) const;
   void horseMenu(const std::vector<Horse>& horses) const;
-  void bankMenu(const Player& player) const;
+  void bankMenu(const Player& player, Bank &bank) const;
   void raceMenu(Race &race, const std::vector<Horse>& horses,
               Player &player, std::vector<Better>& npcs,
               bool legendarySpawned, const std::string& legendaryName) const;

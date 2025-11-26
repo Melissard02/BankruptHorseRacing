@@ -65,6 +65,9 @@ int main() {
         Better("Mr. Monopoly", 1000000)
     };
 
+    // --- CREATE BANK ---
+    Bank bank(player);
+
     // --- start menu system ---
     Race race(horses);
     Menu menu;
@@ -83,7 +86,7 @@ int main() {
             menu.horseMenu(horses);
             break;
         case 4:
-            menu.bankMenu(player);
+            menu.bankMenu(player, bank);
             break;
         case 5:
             race = Race(horses);

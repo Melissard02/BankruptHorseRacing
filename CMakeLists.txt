@@ -11,4 +11,6 @@ add_executable(bankrupt src/main.cpp
         src/Utils.cpp
         src/Menu.cpp
         src/Menu.h
+        src/Bank.cpp
+        src/Bank.h
 )
