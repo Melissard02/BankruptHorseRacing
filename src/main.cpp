@@ -18,7 +18,7 @@ int main() {
 #endif
 
     // --- CREATE PLAYER ---
-    Player player("Melissa", 500, 100);
+    Player player = Player::loadFromFile("player.txt");
 
     // --- CREATE HORSES ---
     std::vector<Horse> horses = {
@@ -77,7 +77,7 @@ int main() {
         int choice = menu.mainMenu();
         switch (choice) {
         case 1:
-            menu.playerMenu(player, horses);
+            menu.playerMenu(player, horses, bank);
             break;
         case 2:
             menu.betMenu(player, horses);
@@ -94,6 +94,7 @@ int main() {
             break;
 
         case 0:
+            player.saveToFile("player.txt");
             running = false;
             break;
         default:

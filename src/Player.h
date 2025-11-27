@@ -27,6 +27,9 @@ class Player {
   bool placeBet(int amount, int horseIndex);
   void clearBet();
 
+  void saveToFile(const std::string& filename) const;
+  static Player loadFromFile(const std::string& filename);
+
 
   // Getters/Setters
   std::string getName() const;

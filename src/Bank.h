@@ -9,18 +9,14 @@
 class Bank {
   private:
   int savings;
-  int checking;
 
   public:
   Bank(const Player& player);
   Bank(int startSavings, int startChecking);
 
-  void Deposit(int amount, bool toSavings);
-  void Withdraw(int amount, bool fromSavings);
+  void Transfer(Player& player, int amount, bool fromSavings);
 
   int getSavings() const { return savings; };
-  int getChecking() const { return checking; };
-
 
 };
 

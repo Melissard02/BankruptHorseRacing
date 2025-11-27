@@ -30,7 +30,7 @@ int Menu::mainMenu() const {
     std::cout << "3. Horse\n";
     std::cout << "4. Bank\n";
     std::cout << "5. Start Race\n";
-    std::cout << "0. Exit\n";
+    std::cout << "0. Save and Exit\n";
     std::cout << "\nSelect: ";
 
     int choice{};
@@ -46,12 +46,12 @@ int Menu::mainMenu() const {
 }
 
 // ---------------------- PLAYER MENU ----------------------
-void Menu::playerMenu(const Player &player, const std::vector<Horse> &horses) const {
+void Menu::playerMenu(const Player &player, const std::vector<Horse> &horses, Bank &bank) const {
     while (true) {
         clearScreen();
         std::cout << "=== PLAYER ===\n";
         std::cout << "Name:    " << player.getName() << "\n";
-        std::cout << "Balance: $" << player.getBalance() << "\n";
+        std::cout << "Balance: $" << bank.getSavings() << "\n";
         std::cout << "Income:  $" << player.getIncome() << "\n";
 
         int betAmt = player.getBetAmount();
@@ -229,15 +229,16 @@ void Menu::horseMenu(const std::vector<Horse> &horses) const {
 }
 
 // ---------------------- BANK MENU ----------------------
-void Menu::bankMenu(const Player &player, Bank &bank) const {
+void Menu::bankMenu(Player &player, Bank &bank) const {
     while (true) {
         clearScreen();
         std::cout << "=== BANK ===\n";
         std::cout << "Checking: $" << player.getBalance() << "\n";
         std::cout << "Savings: $" << bank.getSavings() << "\n";
         std::cout << "Income:  $" << player.getIncome() << "\n";
-        std::cout << "1. Deposit" << "\n";
-        std::cout << "2. Withdraw" << "\n";
+
+
+        std::cout << "1. Transfer Funds" << "\n";
         std::cout << "0. Return\n";
         std::cout << "Select: ";
 
@@ -254,7 +255,11 @@ void Menu::bankMenu(const Player &player, Bank &bank) const {
         if (choice == 0)
             break;
         if (choice == 1) {
-            std::cout << "Select Account to deposit to: " << "\n";
+            clearScreen();
+            std::cout << "=== BANK ===\n";
+            std::cout << "Checking: $" << player.getBalance() << "\n";
+            std::cout << "Savings: $" << bank.getSavings() << "\n\n";
+            std::cout << "Select Account to Receive funds: \n";
             std::cout << "1. Checking\n";
             std::cout << "2. Savings\n";
 
@@ -262,41 +267,33 @@ void Menu::bankMenu(const Player &player, Bank &bank) const {
             std::cin >> account;
             if (account == 1) {
                 int amt;
-                std::cout << "Enter amount to deposit: ";
+                std::cout << "\nEnter amount to transfer: ";
                 std::cin >> amt;
+                if (amt > bank.getSavings()) {
+                    std::cout << "\nNot enough funds in Saving's Account";
+                    std::cout << "\nPress enter to continue...";
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    std::cin.get();
 
-                bank.Deposit(amt, false);
+                } else {
+                    bank.Transfer(player, amt, true);
+                }
+
+
             } else if (account == 2) {
                 int amt;
-                std::cout << "Enter amount to deposit: ";
+                std::cout << "\nEnter amount to transfer: ";
                 std::cin >> amt;
-
-                bank.Deposit(amt, true);
-            }
-
-        }
-        if (choice == 2) {
-            std::cout << "Select Account to withdraw from: " << "\n";
-            std::cout << "1. Checking\n";
-            std::cout << "2. Savings\n";
-
-            int account{};
-            std::cin >> account;
-            if (account == 1) {
-                int amt;
-                std::cout << "Enter amount to withdraw: ";
-                std::cin >> amt;
-
-                bank.Withdraw(amt, false);
-            } else if (account == 2) {
-                int amt;
-                std::cout << "Enter amount to withdraw: ";
-                std::cin >> amt;
-
-                bank.Withdraw(amt, true);
+                if (amt > player.getBalance()) {
+                    std::cout << "\nNot enough funds in Checking's Account";
+                    std::cout << "\nPress enter to continue...";
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    std::cin.get();
+                } else {
+                    bank.Transfer(player, amt, false);
+                }
             }
         }
-
     }
 }
 
