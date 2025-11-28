@@ -4,13 +4,26 @@ project(bankrupt)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(bankrupt src/main.cpp
-        src/Horse.cpp
-        src/Player.cpp
-        src/Better.cpp
-        src/Race.cpp
-        src/Utils.cpp
-        src/Menu.cpp
-        src/Menu.h
-        src/Bank.cpp
-        src/Bank.h
+        src/core/Horse.cpp
+        src/core/Player.cpp
+        src/core/Better.cpp
+        src/core/Race.cpp
+        src/core/Utils.cpp
+        src/ui/oldmenu/Menu.cpp
+        src/ui/oldmenu/Menu.h
+        src/core/Bank.cpp
+        src/core/Bank.h
+        src/ui/tui/TuiMainMenu.cpp
+        src/ui/tui/TuiMainMenu.h
+        src/ui/tui/TuiPlayerMenu.cpp
+        src/ui/tui/TuiPlayerMenu.h
+        src/ui/tui/TuiBettingMenu.cpp
+        src/ui/tui/TuiBettingMenu.h
+        src/ui/tui/TuiHorseMenu.cpp
+        src/ui/tui/TuiBankMenu.cpp
+        src/ui/tui/TuiBankMenu.h
+        src/ui/tui/TuiRaceMenu.cpp
+        src/ui/tui/TuiRaceMenu.h
+        src/ui/tui/UI.h
+        src/ui/oldmenu/TerminalMenu.h
 )

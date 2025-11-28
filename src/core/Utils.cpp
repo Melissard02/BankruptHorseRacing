@@ -2,7 +2,7 @@
 // Created by melis on 11/5/2025.
 //
 
-#include "Utils.h"
+#include "../Utils.h"
 #include <random>
 
 int getRandom(int min, int max) {

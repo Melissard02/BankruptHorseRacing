@@ -1,9 +1,12 @@
-#include "Better.h"
-#include "Horse.h"
-#include "Menu.h"
-#include "Player.h"
-#include "Race.h"
-#include "Utils.h"
+#include "core/Better.h"
+#include "core/Horse.h"
+#include "core/Player.h"
+#include "core/Race.h"
+#include "core/Utils.h"
+#include "ui/oldmenu/Menu.h"
+#include "ui/oldmenu/TerminalMenu.h"
+#include "ui/tui/UI.h"
+
 #include <bits/this_thread_sleep.h>
 #include <iostream>
 #include <vector>
@@ -68,40 +71,35 @@ int main() {
     // --- CREATE BANK ---
     Bank bank(player);
 
-    // --- start menu system ---
-    Race race(horses);
-    Menu menu;
+    UI* ui = nullptr;
+
+    // Temporary use of the old menu system
+    ui = new TerminalMenu(player, horses, bank, npcs);
+
     bool running = true;
 
     while (running) {
-        int choice = menu.mainMenu();
+        int choice = ui->mainMenu();
         switch (choice) {
-        case 1:
-            menu.playerMenu(player, horses, bank);
-            break;
-        case 2:
-            menu.betMenu(player, horses);
-            break;
-        case 3:
-            menu.horseMenu(horses);
-            break;
-        case 4:
-            menu.bankMenu(player, bank);
-            break;
-        case 5:
-            race = Race(horses);
-            menu.raceMenu(race, horses, player, npcs, legendarySpawned, legendaryName);
-            break;
+            case 1: ui->playerMenu(); break;
+            case 2: ui->betMenu(); break;
+            case 3: ui->horseMenu(); break;
+            case 4: ui->bankMenu(); break;
 
-        case 0:
-            player.saveToFile("player.txt");
-            running = false;
-            break;
-        default:
-            break;
+            case 5: {
+                Race race(horses);
+                ui->raceMenu();
+            } break;
+
+            case 0: {
+                player.saveToFile("player.txt");
+                running = false;
+            } break;
         }
     }
 
     std::cout << "\nThanks for playing, " << player.getName() << "!\n";
+
+    delete ui; // cleanup
     return 0;
 }

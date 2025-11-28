@@ -2,7 +2,7 @@
 // Created by melis on 11/5/2025.
 //
 
-#include "Horse.h"
+#include "../Horse.h"
 #include "Utils.h"
 #include <iostream>
 

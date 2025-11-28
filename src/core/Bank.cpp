@@ -2,7 +2,7 @@
 // Created by melis on 11/25/2025.
 //
 
-#include "Bank.h"
+#include "../Bank.h"
 
 #include <iostream>
 Bank::Bank(const Player& player) {

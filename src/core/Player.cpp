@@ -2,16 +2,16 @@
 // Created by melis on 11/5/2025.
 //
 
-#include "Player.h"
-#include <iostream>
+#include "../Player.h"
+#include <algorithm>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <algorithm>
 
 // This class handles logic not in/out
 
- Player::Player(const std::string &name, int balance, int income)
+Player::Player(const std::string &name, int balance, int income)
   : name(name), balance(balance), income(income), bets(0), betAmount(0), betHorseIndex(-1) {}
 
 bool Player::placeBet(int amount, int horseIndex) {
