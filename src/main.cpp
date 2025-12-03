@@ -3,22 +3,18 @@
 #include "core/Player.h"
 #include "core/Race.h"
 #include "core/Utils.h"
-#include "ui/oldmenu/Menu.h"
-#include "ui/oldmenu/TerminalMenu.h"
-#include "ui/tui/UI.h"
 
-#include <bits/this_thread_sleep.h>
+#include "ui/tui/TuiMainMenu.h"
+#include "ui/tui/TuiPlayerMenu.h"
+#include "ui/tui/TuiHorseMenu.h"
+#include "ui/tui/TuiBettingMenu.h"
+#include "ui/tui/TuiBankMenu.h"
+#include "ui/tui/TuiRaceMenu.h"
+
 #include <iostream>
 #include <vector>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
 int main() {
-#ifdef _WIN32
-    SetConsoleOutputCP(CP_UTF8);
-#endif
 
     // --- CREATE PLAYER ---
     Player player = Player::loadFromFile("player.txt");
@@ -71,25 +67,40 @@ int main() {
     // --- CREATE BANK ---
     Bank bank(player);
 
-    UI* ui = nullptr;
+    // ------------------------------------------------------------------------------
+    // --- CREATE ALL TUI MENUS
+    // ------------------------------------------------------------------------------
+    IMainMenu* mainMenu =
+        new TuiMainMenu(player, horses, bank, npcs);
 
-    // Temporary use of the old menu system
-    ui = new TerminalMenu(player, horses, bank, npcs);
+    IPlayerMenu* playerMenu =
+        new TuiPlayerMenu(player, horses, bank);
 
+    IHorseMenu* horseMenu =
+        new TuiHorseMenu(horses);
+
+    IBetMenu* betMenu =
+        new TuiBettingMenu(player, horses);
+
+    IBankMenu* bankMenu =
+        new TuiBankMenu(player, bank);
+
+    IRaceMenu* raceMenu =
+        new TuiRaceMenu(player, horses, npcs, legendarySpawned, legendaryName);
+
+    // ------------------------------------------------------------------------------
+    // MAIN GAME LOOP
+    // ------------------------------------------------------------------------------
     bool running = true;
 
     while (running) {
-        int choice = ui->mainMenu();
+        int choice = mainMenu->mainMenu();
         switch (choice) {
-            case 1: ui->playerMenu(); break;
-            case 2: ui->betMenu(); break;
-            case 3: ui->horseMenu(); break;
-            case 4: ui->bankMenu(); break;
-
-            case 5: {
-                Race race(horses);
-                ui->raceMenu();
-            } break;
+            case 1: playerMenu->playerMenu(); break;
+            case 2: betMenu->betMenu(); break;
+            case 3: horseMenu->horseMenu(); break;
+            case 4: bankMenu->bankMenu(); break;
+            case 5: raceMenu->raceMenu(); break;
 
             case 0: {
                 player.saveToFile("player.txt");
@@ -98,8 +109,13 @@ int main() {
         }
     }
 
-    std::cout << "\nThanks for playing, " << player.getName() << "!\n";
+    // --- CLEAN UP ---
+    delete mainMenu;
+    delete playerMenu;
+    delete betMenu;
+    delete horseMenu;
+    delete bankMenu;
+    delete raceMenu;
 
-    delete ui; // cleanup
     return 0;
 }

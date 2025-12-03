@@ -1,8 +1,25 @@
-//
-// Created by melis on 11/28/2025.
-//
+#pragma once
 
-#ifndef BANKRUPT_TUIPLAYERMENU_H
-#define BANKRUPT_TUIPLAYERMENU_H
+#include "../../core/Bank.h"
+#include "../../core/Horse.h"
+#include "../../core/Player.h"
+#include "interfaces/IPlayerMenu.h"
 
-#endif // BANKRUPT_TUIPLAYERMENU_H
+#include <vector>
+
+class TuiPlayerMenu : public IPlayerMenu {
+public:
+  TuiPlayerMenu(Player& player,
+                std::vector<Horse>& horses,
+                Bank& bank)
+      : player(player), horses(horses), bank(bank) {}
+
+  void playerMenu() override;
+
+private:
+  int runMenu();
+
+  Player& player;
+  std::vector<Horse>& horses;
+  Bank& bank;
+};

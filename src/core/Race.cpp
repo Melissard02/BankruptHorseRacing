@@ -1,4 +1,4 @@
-#include "../Race.h"
+#include "./Race.h"
 #include "Horse.h"
 #include "Utils.h"
 

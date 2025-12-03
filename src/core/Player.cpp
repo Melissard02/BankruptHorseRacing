@@ -2,7 +2,7 @@
 // Created by melis on 11/5/2025.
 //
 
-#include "../Player.h"
+#include "./Player.h"
 #include <algorithm>
 #include <fstream>
 #include <iostream>

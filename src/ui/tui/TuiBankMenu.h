@@ -1,8 +1,20 @@
-//
-// Created by melis on 11/28/2025.
-//
+#pragma once
 
-#ifndef BANKRUPT_TUIBANKMENU_H
-#define BANKRUPT_TUIBANKMENU_H
+#include "interfaces/IBankMenu.h"
+#include "../../core/Player.h"
+#include "../../core/Bank.h"
 
-#endif // BANKRUPT_TUIBANKMENU_H
+class TuiBankMenu : public IBankMenu {
+public:
+  TuiBankMenu(Player& player, Bank& bank)
+      : player(player), bank(bank) {}
+
+  void bankMenu() override;
+
+private:
+  int runMainMenu();
+  void runTransferMenu();
+
+  Player& player;
+  Bank& bank;
+};

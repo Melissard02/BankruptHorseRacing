@@ -1,18 +1,40 @@
-//
-// Created by melis on 11/28/2025.
-//
-
 #include "TuiMainMenu.h"
-// Layout Plan:
-//   Title centered
-//   Menu list centered
-//   Selection highlight
-//   Maybe a border or colorful accent
-//
-//   Options:
-//      - Player Info
-//      - Betting
-//      - Horse
-//      - Bank
-//      - Start Race
-//      - Exit
+
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/component/component.hpp>
+#include <ftxui/component/screen_interactive.hpp>
+
+using namespace ftxui;
+
+int TuiMainMenu::runMenu() {
+  auto screen = ScreenInteractive::Fullscreen();
+
+  int selected = 0;
+
+  std::vector<std::string> options = {
+    "Player Info",
+    "Betting",
+    "Horse",
+    "Bank",
+    "Start Race",
+    "Save and Exit"
+  };
+
+  auto menu = Menu(&options, &selected);
+
+  auto layout = Renderer(menu, [&] {
+    return vbox({
+        text("=== BANKRUPT RACING ===") | bold | center,
+        separator(),
+        menu->Render() | center
+    });
+  });
+
+  screen.Loop(layout);
+
+  return selected;
+}
+
+int TuiMainMenu::mainMenu() {
+  return runMenu();
+}

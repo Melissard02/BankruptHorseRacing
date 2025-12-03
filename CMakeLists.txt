@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.10)
 project(bankrupt)
 
 set(CMAKE_CXX_STANDARD 20)
+
+add_subdirectory(libs/ftxui)
 
 add_executable(bankrupt src/main.cpp
         src/core/Horse.cpp
@@ -24,6 +26,21 @@ add_executable(bankrupt src/main.cpp
         src/ui/tui/TuiBankMenu.h
         src/ui/tui/TuiRaceMenu.cpp
         src/ui/tui/TuiRaceMenu.h
-        src/ui/tui/UI.h
         src/ui/oldmenu/TerminalMenu.h
+        src/ui/oldmenu/TerminalMenu.cpp
+        src/ui/tui/TuiHorseMenu.h
+        src/ui/tui/interfaces/IMainMenu.h
+        src/ui/tui/interfaces/IPlayerMenu.h
+        src/ui/tui/interfaces/IHorseMenu.h
+        src/ui/tui/interfaces/IBankMenu.h
+        src/ui/tui/interfaces/IBettingMenu.h
+        src/ui/tui/interfaces/IRaceMenu.h
+        src/ui/tui/RaceAnimation.h
+        src/ui/tui/RaceAnimation.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}
+        ftxui::component
+        ftxui::screen
+        ftxui::dom
 )

@@ -1,8 +1,23 @@
-//
-// Created by melis on 11/28/2025.
-//
+#pragma once
 
-#ifndef BANKRUPT_TUIBETTINGMENU_H
-#define BANKRUPT_TUIBETTINGMENU_H
+#include "interfaces/IBettingMenu.h"
+#include "../../core/Player.h"
+#include "../../core/Horse.h"
 
-#endif // BANKRUPT_TUIBETTINGMENU_H
+#include <vector>
+
+class TuiBettingMenu : public IBetMenu {
+public:
+  TuiBettingMenu(Player& player, std::vector<Horse>& horses)
+      : player(player), horses(horses) {}
+
+  void betMenu() override;
+
+private:
+  int runMainMenu();
+  void showHorseList();
+  void runPlaceBetMenu();
+
+  Player& player;
+  std::vector<Horse>& horses;
+};
