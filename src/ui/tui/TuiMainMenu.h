@@ -4,23 +4,25 @@
 #include "../../core/Better.h"
 #include "../../core/Horse.h"
 #include "../../core/Player.h"
+
+#include "ftxui/component/screen_interactive.hpp"
 #include "interfaces/IMainMenu.h"
 
 #include <vector>
 
 class TuiMainMenu : public IMainMenu {
 public:
-  TuiMainMenu(Player& player,
+  TuiMainMenu(ftxui::ScreenInteractive& screen,
+              Player& player,
               std::vector<Horse>& horses,
               Bank& bank,
               std::vector<Better>& npcs)
-      : player(player), horses(horses), bank(bank), npcs(npcs) {}
+      : screen(screen), player(player), horses(horses), bank(bank), npcs(npcs) {}
 
   int mainMenu() override;
 
 private:
-  int runMenu();
-
+  ftxui::ScreenInteractive& screen;
   Player& player;
   std::vector<Horse>& horses;
   Bank& bank;

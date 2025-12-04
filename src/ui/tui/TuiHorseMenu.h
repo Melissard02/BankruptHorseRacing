@@ -2,22 +2,20 @@
 
 #include "../../core/Horse.h"
 #include "interfaces/IHorseMenu.h"
-
-#include <vector>
+#include <ftxui/component/screen_interactive.hpp>
 
 class TuiHorseMenu : public IHorseMenu {
 public:
-  TuiHorseMenu(std::vector<Horse>& horses)
-      : horses(horses) {}
+  TuiHorseMenu(ftxui::ScreenInteractive& screen,
+               std::vector<Horse>& horses);
 
   void horseMenu() override;
 
 private:
-  int runMainMenu();
   void showHorseList();
-  void showAllStats();
-  void showSingleHorse(int index);
   void showSingleHorsePrompt();
+  void showSingleHorse(int index);
 
+  ftxui::ScreenInteractive& screen;
   std::vector<Horse>& horses;
 };

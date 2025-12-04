@@ -1,23 +1,14 @@
 #include "TuiBettingMenu.h"
-
-#include <ftxui/component/screen_interactive.hpp>
-#include <ftxui/component/component.hpp>
 #include <ftxui/dom/elements.hpp>
+#include <ftxui/component/component.hpp>
 
 using namespace ftxui;
 
-// -----------------------------------------------------------
-// Main Betting Menu
-// -----------------------------------------------------------
-
-int TuiBettingMenu::runMainMenu() {
-    auto screen = ScreenInteractive::Fullscreen();
-
+void TuiBettingMenu::betMenu() {
     int selected = 0;
-
     std::vector<std::string> options = {
-        "View Horses",
-        "Place Bet",
+        "Show Horses",
+        "Show Bets",
         "Return"
     };
 
@@ -25,62 +16,37 @@ int TuiBettingMenu::runMainMenu() {
 
     auto layout = Renderer(menu, [&] {
         return vbox({
-            text("=== BETTING ===") | bold | center,
+        text("=== BET MENU ====") | bold | center,
             separator(),
             menu->Render() | center
         });
     });
 
     screen.Loop(layout);
-    return selected;
-}
 
-// -----------------------------------------------------------
-// Entrypoint
-// -----------------------------------------------------------
-
-void TuiBettingMenu::betMenu() {
-    while (true) {
-        int choice = runMainMenu();
-
-        switch (choice) {
-            case 0:
-                showHorseList();
-                break;
-            case 1:
-                runPlaceBetMenu();
-                break;
-            case 2:
-                return;
-        }
+    if (selected == 0) {
+        showHorseList();
+    } else if (selected == 1) {
+        placeBetMenu();
     }
 }
 
-// -----------------------------------------------------------
-// Show horse stats (non-interactive)
-// -----------------------------------------------------------
+TuiBettingMenu::TuiBettingMenu(ScreenInteractive& screen,
+                               Player& player,
+                               std::vector<Horse>& horses)
+    : screen(screen), player(player), horses(horses) {}
 
 void TuiBettingMenu::showHorseList() {
-    auto screen = ScreenInteractive::Fullscreen();
-
     auto layout = Renderer([&] {
-        std::vector<Element> items;
+        std::vector<Element> list;
 
-        for (auto& h : horses) {
-            items.push_back(vbox({
-                text(h.getName()) | bold,
-                text("Speed: " + std::to_string(h.getSpeed())),
-                text("Stamina: " + std::to_string(h.getStamina())),
-                text("Popularity: " + std::to_string(h.getPopularity())),
-                text("Luck: " + std::to_string(h.getLuck())),
-                separator()
-            }));
-        }
+        for (auto& h : horses)
+            list.push_back(text("• " + h.getName()));
 
         return vbox({
-            text("=== HORSES ===") | bold | center,
+            text("=== HORSE LIST ===") | bold | center,
             separator(),
-            vbox(items) | center,
+            vbox(list) | center,
             separator(),
             text("Press ESC to return") | dim | center
         });
@@ -89,93 +55,61 @@ void TuiBettingMenu::showHorseList() {
     screen.Loop(layout);
 }
 
-// -----------------------------------------------------------
-// Place Bet Flow
-// -----------------------------------------------------------
 
-void TuiBettingMenu::runPlaceBetMenu() {
-    auto screen = ScreenInteractive::Fullscreen();
-
-    // STEP 1: Show only non-legendary horses
-    std::vector<int> bettable;
-    std::vector<std::string> names;
-
-    for (int i = 0; i < (int)horses.size(); i++) {
-        if (!horses[i].isLegendary()) {
-            bettable.push_back(i);
-            names.push_back(horses[i].getName());
-        }
-    }
-
-    if (bettable.empty()) {
-        auto layout = Renderer([] {
-            return vbox({
-                text("No eligible horses to bet on!") | bold | color(Color::Red),
-                separator(),
-                text("Press ESC to return") | dim | center
-            });
-        });
-        screen.Loop(layout);
-        return;
-    }
-
-    // STEP 2: Choose horse
+void TuiBettingMenu::placeBetMenu() {
     int selected = 0;
-    auto menu = Menu(&names, &selected);
 
-    auto chooseLayout = Renderer(menu, [&] {
+    // Step 1: Choose horse
+    std::vector<std::string> names;
+    for (auto& h : horses)
+        names.push_back(h.getName());
+
+    auto horseMenu = Menu(&names, &selected);
+
+    auto horseLayout = Renderer(horseMenu, [&] {
         return vbox({
-            text("=== PLACE BET ===") | bold | center,
+            text("=== SELECT HORSE TO BET ON ===") | bold | center,
             separator(),
-            menu->Render() | center,
+            horseMenu->Render() | center,
             separator(),
-            text("Select a horse (ENTER)") | dim | center
+            text("Press Enter to select, ESC to cancel") | dim | center
         });
     });
 
-    screen.Loop(chooseLayout);
+    screen.Loop(horseLayout);
 
-    int realHorseIndex = bettable[selected];
+    int horseIndex = selected;
 
-    // STEP 3: Enter amount
-    std::string amountStr = "";
-    auto input = Input(&amountStr, "Enter bet amount");
+    // Step 2: Ask for bet amount
+    std::string betAmountString = "50"; // Minimum
 
-    auto amountLayout = Renderer(input, [&] {
+    auto input = Input(&betAmountString, "Enter Bet");
+
+    int betAmount = std::stoi(betAmountString);
+
+    auto betLayout = Renderer(input, [&] {
         return vbox({
-            text("=== BET AMOUNT ===") | bold | center,
+            text("=== ENTER BET AMOUNT ===") | bold | center,
             separator(),
-            text("Your Balance: $" + std::to_string(player.getBalance())),
+            text("Minimum Bet: $50") | dim,
             separator(),
             input->Render() | center,
-            text("Press ENTER when done") | dim | center
+            separator(),
+            text("Press Enter to confirm, ESC to cancel") | dim | center
         });
     });
 
-    screen.Loop(amountLayout);
+    screen.Loop(betLayout);
 
-    int amount = 0;
-    try {
-        amount = std::stoi(amountStr);
-    } catch (...) {
-        amount = 0;
-    }
+    // Step 3: Place the actual bet
+    bool success = player.placeBet(betAmount, horseIndex);
 
-    // STEP 4: Validation
-    bool success = false;
-
-    if (amount >= 50 && amount <= player.getBalance()) {
-        success = player.placeBet(amount, realHorseIndex); // ✔ same as old code
-    }
-
-    // STEP 5: Result screen
+    // Step 4: Show result screen
     auto resultLayout = Renderer([&] {
         return vbox({
-            text(success
-                 ? "Bet Placed Successfully!"
-                 : "Failed to Place Bet!") |
-                bold |
-                color(success ? Color::Green : Color::Red),
+            text(success ? "Bet Placed Successfully!" : "Bet Failed!")
+                | bold
+                | center,
             separator(),
             text("Press ESC to return") | dim | center
         });
@@ -183,3 +117,4 @@ void TuiBettingMenu::runPlaceBetMenu() {
 
     screen.Loop(resultLayout);
 }
+

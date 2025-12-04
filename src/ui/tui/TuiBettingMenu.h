@@ -1,23 +1,24 @@
 #pragma once
 
-#include "interfaces/IBettingMenu.h"
 #include "../../core/Player.h"
 #include "../../core/Horse.h"
+#include "interfaces/IBettingMenu.h"
 
-#include <vector>
+#include <ftxui/component/screen_interactive.hpp>
 
 class TuiBettingMenu : public IBetMenu {
 public:
-  TuiBettingMenu(Player& player, std::vector<Horse>& horses)
-      : player(player), horses(horses) {}
+  TuiBettingMenu(ftxui::ScreenInteractive& screen,
+                 Player& player,
+                 std::vector<Horse>& horses);
 
   void betMenu() override;
 
 private:
-  int runMainMenu();
   void showHorseList();
-  void runPlaceBetMenu();
+  void placeBetMenu();
 
+  ftxui::ScreenInteractive& screen;
   Player& player;
   std::vector<Horse>& horses;
 };

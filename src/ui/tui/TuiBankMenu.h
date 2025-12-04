@@ -1,20 +1,21 @@
 #pragma once
 
-#include "interfaces/IBankMenu.h"
-#include "../../core/Player.h"
 #include "../../core/Bank.h"
+#include "../../core/Player.h"
+#include "interfaces/IBankMenu.h"
+
+#include <ftxui/component/screen_interactive.hpp>
 
 class TuiBankMenu : public IBankMenu {
 public:
-  TuiBankMenu(Player& player, Bank& bank)
-      : player(player), bank(bank) {}
+  TuiBankMenu(ftxui::ScreenInteractive& screen,
+              Player& player,
+              Bank& bank);
 
   void bankMenu() override;
 
 private:
-  int runMainMenu();
-  void runTransferMenu();
-
+  ftxui::ScreenInteractive& screen;
   Player& player;
   Bank& bank;
 };

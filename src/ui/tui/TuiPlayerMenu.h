@@ -1,24 +1,23 @@
 #pragma once
 
+#include "../../core/Player.h"
 #include "../../core/Bank.h"
 #include "../../core/Horse.h"
-#include "../../core/Player.h"
 #include "interfaces/IPlayerMenu.h"
 
-#include <vector>
+#include <ftxui/component/screen_interactive.hpp>
 
 class TuiPlayerMenu : public IPlayerMenu {
 public:
-  TuiPlayerMenu(Player& player,
+  TuiPlayerMenu(ftxui::ScreenInteractive& screen,
+                Player& player,
                 std::vector<Horse>& horses,
-                Bank& bank)
-      : player(player), horses(horses), bank(bank) {}
+                Bank& bank);
 
   void playerMenu() override;
 
 private:
-  int runMenu();
-
+  ftxui::ScreenInteractive& screen;
   Player& player;
   std::vector<Horse>& horses;
   Bank& bank;

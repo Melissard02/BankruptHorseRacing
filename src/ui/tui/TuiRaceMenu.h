@@ -1,36 +1,28 @@
 #pragma once
 
-#include "interfaces/IRaceMenu.h"
-#include "../../core/Horse.h"
 #include "../../core/Player.h"
+#include "../../core/Horse.h"
 #include "../../core/Better.h"
 
-#include <vector>
-#include <string>
+#include "interfaces/IRaceMenu.h"
+#include <ftxui/component/screen_interactive.hpp>
 
 class TuiRaceMenu : public IRaceMenu {
 public:
-  TuiRaceMenu(Player& player,
+  TuiRaceMenu(ftxui::ScreenInteractive& screen,
+              Player& player,
               std::vector<Horse>& horses,
               std::vector<Better>& npcs,
               bool legendarySpawned,
-              const std::string& legendaryName)
-      : player(player),
-        horses(horses),
-        npcs(npcs),
-        legendarySpawned(legendarySpawned),
-        legendaryName(legendaryName) {}
+              const std::string& legendaryName);
 
   void raceMenu() override;
 
 private:
-  int runMainMenu();
-  void showHorsesScreen();
-
+  ftxui::ScreenInteractive& screen;
   Player& player;
   std::vector<Horse>& horses;
   std::vector<Better>& npcs;
-
   bool legendarySpawned;
   std::string legendaryName;
 };

@@ -3,6 +3,7 @@
 #include "core/Player.h"
 #include "core/Race.h"
 #include "core/Utils.h"
+#include "core/Bank.h"
 
 #include "ui/tui/TuiMainMenu.h"
 #include "ui/tui/TuiPlayerMenu.h"
@@ -14,12 +15,24 @@
 #include <iostream>
 #include <vector>
 
-int main() {
+#include <ftxui/component/screen_interactive.hpp>
 
-    // --- CREATE PLAYER ---
+int main() {
+    using namespace ftxui;
+
+    // =============================================================
+    // CREATE ONE GLOBAL SCREEN (THIS FIXES ENTER NOT WORKING)
+    // =============================================================
+    auto screen = ScreenInteractive::TerminalOutput();
+
+    // =============================================================
+    // PLAYER
+    // =============================================================
     Player player = Player::loadFromFile("player.txt");
 
-    // --- CREATE HORSES ---
+    // =============================================================
+    // HORSES
+    // =============================================================
     std::vector<Horse> horses = {
         Horse("Thunder"),
         Horse("Cracker"),
@@ -30,11 +43,11 @@ int main() {
         Horse("Pumpkin"),
         Horse("Echo")
     };
-    for (auto& h : horses) {
-        h.generateStats();
-    }
 
-    // --- LEGENDARY HORSES ---
+    for (auto& h : horses)
+        h.generateStats();
+
+    // Legendary spawn logic
     bool legendarySpawned = false;
     std::string legendaryName;
 
@@ -56,7 +69,9 @@ int main() {
         legendarySpawned = true;
     }
 
-    // --- CREATE NPC BETTERS ---
+    // =============================================================
+    // NPC BETTORS
+    // =============================================================
     std::vector<Better> npcs = {
         Better("Candle", 300),
         Better("Mentos", 200),
@@ -64,57 +79,64 @@ int main() {
         Better("Mr. Monopoly", 1000000)
     };
 
-    // --- CREATE BANK ---
+    // =============================================================
+    // BANK
+    // =============================================================
     Bank bank(player);
 
-    // ------------------------------------------------------------------------------
-    // --- CREATE ALL TUI MENUS
-    // ------------------------------------------------------------------------------
+    // =============================================================
+    // CREATE ALL MENUS — NOW PASSING THE SHARED SCREEN
+    // =============================================================
     IMainMenu* mainMenu =
-        new TuiMainMenu(player, horses, bank, npcs);
+        new TuiMainMenu(screen, player, horses, bank, npcs);
 
     IPlayerMenu* playerMenu =
-        new TuiPlayerMenu(player, horses, bank);
+        new TuiPlayerMenu(screen, player, horses, bank);
 
     IHorseMenu* horseMenu =
-        new TuiHorseMenu(horses);
+        new TuiHorseMenu(screen, horses);
 
     IBetMenu* betMenu =
-        new TuiBettingMenu(player, horses);
+        new TuiBettingMenu(screen, player, horses);
 
-    IBankMenu* bankMenu =
-        new TuiBankMenu(player, bank);
+    IBankMenu* bankMenuUI =
+        new TuiBankMenu(screen, player, bank);
 
     IRaceMenu* raceMenu =
-        new TuiRaceMenu(player, horses, npcs, legendarySpawned, legendaryName);
+        new TuiRaceMenu(screen, player, horses, npcs, legendarySpawned, legendaryName);
 
-    // ------------------------------------------------------------------------------
-    // MAIN GAME LOOP
-    // ------------------------------------------------------------------------------
+    // =============================================================
+    // MAIN LOOP
+    // =============================================================
     bool running = true;
 
     while (running) {
+        screen.Clear();
         int choice = mainMenu->mainMenu();
-        switch (choice) {
-            case 1: playerMenu->playerMenu(); break;
-            case 2: betMenu->betMenu(); break;
-            case 3: horseMenu->horseMenu(); break;
-            case 4: bankMenu->bankMenu(); break;
-            case 5: raceMenu->raceMenu(); break;
 
-            case 0: {
+        switch (choice) {
+            case 0: playerMenu->playerMenu(); break;
+            case 1: betMenu->betMenu(); break;
+            case 2: horseMenu->horseMenu(); break;
+            case 3: bankMenuUI->bankMenu(); break;
+            case 4: raceMenu->raceMenu(); break;
+            case 5:
                 player.saveToFile("player.txt");
                 running = false;
-            } break;
+                break;
         }
     }
 
-    // --- CLEAN UP ---
+    std::cout << "\nThanks for playing, " << player.getName() << "!\n";
+
+    // =============================================================
+    // CLEANUP
+    // =============================================================
     delete mainMenu;
     delete playerMenu;
     delete betMenu;
     delete horseMenu;
-    delete bankMenu;
+    delete bankMenuUI;
     delete raceMenu;
 
     return 0;
