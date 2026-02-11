@@ -14,3 +14,13 @@ add_executable(bankrupt src/main.cpp
         src/Bank.cpp
         src/Bank.h
 )
+
+
+# TEST FOR SQLITE
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+target_link_libraries(bankrupt PRIVATE unofficial::sqlite3::sqlite3)
+
+add_executable(sqlite_test
+        src/sqlite_test.cpp
+)
+target_link_libraries(sqlite_test PRIVATE unofficial::sqlite3::sqlite3)

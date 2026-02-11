@@ -4,7 +4,6 @@
 #include "Player.h"
 #include "Race.h"
 #include "Utils.h"
-#include <bits/this_thread_sleep.h>
 #include <iostream>
 #include <vector>
 
