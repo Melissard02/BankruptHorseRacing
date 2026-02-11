@@ -1,11 +1,11 @@
-#include "Menu.h"
+#include "./Menu.h"
 
-#include "Bank.h"
-#include "Better.h"
-#include "Horse.h"
-#include "Player.h"
-#include "Race.h"
-#include "Utils.h"
+#include "../../core/Bank.h"
+#include "../../core/Better.h"
+#include "../../core/Horse.h"
+#include "../../core/Player.h"
+#include "../../core/Race.h"
+#include "../../core/Utils.h"
 
 #include <iostream>
 #include <limits>

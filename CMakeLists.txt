@@ -1,26 +1,34 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.10)
 project(bankrupt)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(bankrupt src/main.cpp
-        src/Horse.cpp
-        src/Player.cpp
-        src/Better.cpp
-        src/Race.cpp
-        src/Utils.cpp
-        src/Menu.cpp
-        src/Menu.h
-        src/Bank.cpp
-        src/Bank.h
+add_subdirectory(libs/ftxui)
+
+add_executable(bankrupt
+        src/main.cpp
+
+        # Core
+        src/core/Horse.cpp
+        src/core/Player.cpp
+        src/core/Better.cpp
+        src/core/Race.cpp
+        src/core/Utils.cpp
+        src/core/Bank.cpp
+
+        # TUI Menus
+        src/ui/tui/TuiMainMenu.cpp
+        src/ui/tui/TuiPlayerMenu.cpp
+        src/ui/tui/TuiBettingMenu.cpp
+        src/ui/tui/TuiHorseMenu.cpp
+        src/ui/tui/TuiBankMenu.cpp
+        src/ui/tui/TuiRaceMenu.cpp
+        src/ui/tui/RaceAnimation.cpp
 )
 
 
-# TEST FOR SQLITE
-find_package(unofficial-sqlite3 CONFIG REQUIRED)
-target_link_libraries(bankrupt PRIVATE unofficial::sqlite3::sqlite3)
-
-add_executable(sqlite_test
-        src/sqlite_test.cpp
+target_link_libraries(${PROJECT_NAME}
+        ftxui::component
+        ftxui::screen
+        ftxui::dom
 )
-target_link_libraries(sqlite_test PRIVATE unofficial::sqlite3::sqlite3)

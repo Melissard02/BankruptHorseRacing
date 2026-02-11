@@ -4,12 +4,12 @@
 
 #ifndef BANKRUPT_MENU_H
 #define BANKRUPT_MENU_H
-#include "Bank.h"
+#include "../../core/Bank.h"
 
 class Player;
 class Horse;
 class Race;
-#include "Better.h"
+#include "../../core/Better.h"
 #include <vector>
 
 class Menu {

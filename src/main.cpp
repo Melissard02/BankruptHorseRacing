@@ -1,25 +1,38 @@
-#include "Better.h"
-#include "Horse.h"
-#include "Menu.h"
-#include "Player.h"
-#include "Race.h"
-#include "Utils.h"
+#include "core/Better.h"
+#include "core/Horse.h"
+#include "core/Player.h"
+#include "core/Race.h"
+#include "core/Utils.h"
+#include "core/Bank.h"
+
+#include "ui/tui/TuiMainMenu.h"
+#include "ui/tui/TuiPlayerMenu.h"
+#include "ui/tui/TuiHorseMenu.h"
+#include "ui/tui/TuiBettingMenu.h"
+#include "ui/tui/TuiBankMenu.h"
+#include "ui/tui/TuiRaceMenu.h"
+
 #include <iostream>
 #include <vector>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
+#include <ftxui/component/screen_interactive.hpp>
 
 int main() {
-#ifdef _WIN32
-    SetConsoleOutputCP(CP_UTF8);
-#endif
+    using namespace ftxui;
 
-    // --- CREATE PLAYER ---
+    // =============================================================
+    // CREATE ONE GLOBAL SCREEN (THIS FIXES ENTER NOT WORKING)
+    // =============================================================
+    auto screen = ScreenInteractive::TerminalOutput();
+
+    // =============================================================
+    // PLAYER
+    // =============================================================
     Player player = Player::loadFromFile("player.txt");
 
-    // --- CREATE HORSES ---
+    // =============================================================
+    // HORSES
+    // =============================================================
     std::vector<Horse> horses = {
         Horse("Thunder"),
         Horse("Cracker"),
@@ -30,11 +43,11 @@ int main() {
         Horse("Pumpkin"),
         Horse("Echo")
     };
-    for (auto& h : horses) {
-        h.generateStats();
-    }
 
-    // --- LEGENDARY HORSES ---
+    for (auto& h : horses)
+        h.generateStats();
+
+    // Legendary spawn logic
     bool legendarySpawned = false;
     std::string legendaryName;
 
@@ -56,7 +69,9 @@ int main() {
         legendarySpawned = true;
     }
 
-    // --- CREATE NPC BETTERS ---
+    // =============================================================
+    // NPC BETTORS
+    // =============================================================
     std::vector<Better> npcs = {
         Better("Candle", 300),
         Better("Mentos", 200),
@@ -64,43 +79,65 @@ int main() {
         Better("Mr. Monopoly", 1000000)
     };
 
-    // --- CREATE BANK ---
+    // =============================================================
+    // BANK
+    // =============================================================
     Bank bank(player);
 
-    // --- start menu system ---
-    Race race(horses);
-    Menu menu;
+    // =============================================================
+    // CREATE ALL MENUS — NOW PASSING THE SHARED SCREEN
+    // =============================================================
+    IMainMenu* mainMenu =
+        new TuiMainMenu(screen, player, horses, bank, npcs);
+
+    IPlayerMenu* playerMenu =
+        new TuiPlayerMenu(screen, player, horses, bank);
+
+    IHorseMenu* horseMenu =
+        new TuiHorseMenu(screen, horses);
+
+    IBetMenu* betMenu =
+        new TuiBettingMenu(screen, player, horses);
+
+    IBankMenu* bankMenuUI =
+        new TuiBankMenu(screen, player, bank);
+
+    IRaceMenu* raceMenu =
+        new TuiRaceMenu(screen, player, horses, npcs, legendarySpawned, legendaryName);
+
+    // =============================================================
+    // MAIN LOOP
+    // =============================================================
     bool running = true;
 
     while (running) {
-        int choice = menu.mainMenu();
-        switch (choice) {
-        case 1:
-            menu.playerMenu(player, horses, bank);
-            break;
-        case 2:
-            menu.betMenu(player, horses);
-            break;
-        case 3:
-            menu.horseMenu(horses);
-            break;
-        case 4:
-            menu.bankMenu(player, bank);
-            break;
-        case 5:
-            race = Race(horses);
-            menu.raceMenu(race, horses, player, npcs, legendarySpawned, legendaryName);
-            break;
+        screen.Clear();
+        int choice = mainMenu->mainMenu();
 
-        case 0:
-            player.saveToFile("player.txt");
-            running = false;
-            break;
-        default:
-            break;
+        switch (choice) {
+            case 0: playerMenu->playerMenu(); break;
+            case 1: betMenu->betMenu(); break;
+            case 2: horseMenu->horseMenu(); break;
+            case 3: bankMenuUI->bankMenu(); break;
+            case 4: raceMenu->raceMenu(); break;
+            case 5:
+                player.saveToFile("player.txt");
+                running = false;
+                break;
         }
     }
 
     std::cout << "\nThanks for playing, " << player.getName() << "!\n";
+
+    // =============================================================
+    // CLEANUP
+    // =============================================================
+    delete mainMenu;
+    delete playerMenu;
+    delete betMenu;
+    delete horseMenu;
+    delete bankMenuUI;
+    delete raceMenu;
+
     return 0;
 }

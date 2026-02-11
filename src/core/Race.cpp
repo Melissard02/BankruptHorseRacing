@@ -1,13 +1,13 @@
-#include "Race.h"
-#include "Utils.h"
+#include "./Race.h"
 #include "Horse.h"
+#include "Utils.h"
 
+#include <algorithm>
+#include <chrono>
+#include <iomanip> // std::setw, std::left
 #include <iostream>
 #include <thread>
-#include <chrono>
-#include <iomanip>  // std::setw, std::left
 #include <vector>
-#include <algorithm>
 
 Race::Race(std::vector<Horse>& horses)
     : horses(horses), progress(horses.size(), 0), winnerIndex(-1) {}
