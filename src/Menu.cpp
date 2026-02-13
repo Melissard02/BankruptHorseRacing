@@ -5,7 +5,6 @@
 #include "Horse.h"
 #include "Player.h"
 #include "Race.h"
-#include "Utils.h"
 
 #include <iostream>
 #include <limits>

@@ -17,7 +17,7 @@ private:
   int luck;
 
   int wins = 0;
-  int races;
+  int races = 0;
 
   public:
   Horse(const std::string& name, bool legendary = false);
@@ -41,6 +41,16 @@ private:
   int getLuck() const;
   int getWins() const;
   int getRaces() const;
+
+  void setLoadedData(int speed_, int stamina_, int popularity_, int luck_, int wins_, int races_) {
+    speed = speed_;
+    stamina = stamina_;
+    popularity = popularity_;
+    luck = luck_;
+    wins = wins_;
+    races = races_;
+  }
+
 };
 
 #endif //BANKRUPT_HORSE_H

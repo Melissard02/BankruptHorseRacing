@@ -13,6 +13,11 @@ add_executable(bankrupt src/main.cpp
         src/Menu.h
         src/Bank.cpp
         src/Bank.h
+        src/LoadScreen.cpp
+        src/LoadScreen.h
+        src/Database.cpp
+        src/Database.h
+        src/GameSave.h
 )
 
 
@@ -22,5 +27,6 @@ target_link_libraries(bankrupt PRIVATE unofficial::sqlite3::sqlite3)
 
 add_executable(sqlite_test
         src/sqlite_test.cpp
+        src/Database.cpp
 )
 target_link_libraries(sqlite_test PRIVATE unofficial::sqlite3::sqlite3)

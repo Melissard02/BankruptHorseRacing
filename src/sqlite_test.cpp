@@ -1,37 +1,36 @@
+#include "Database.h"
 #include <iostream>
-#include <sqlite3.h>
 
 int main() {
-  sqlite3* db = nullptr;
+  Database db;
 
-  int rc = sqlite3_open("appdata.db", &db);
-  if (rc != SQLITE_OK) {
-    std::cerr << "Open DB failed: " << sqlite3_errmsg(db) << "\n";
+  GameSave save;
+  save.playerName = "Melissa";
+  save.balance = 500;
+  save.income = 100;
+  save.bets = 0;
+  save.betAmount = 0;
+  save.betHorseIndex = -1;
+
+  HorseSave h;
+  h.horseName = "Zoomy";
+  h.legendary = true;
+  h.speed = 9; h.stamina = 7; h.popularity = 5; h.luck = 8;
+  h.wins = 3; h.races = 5;
+  save.horses.push_back(h);
+
+  if (!db.saveGame(save)) {
+    std::cout << "Save failed\n";
     return 1;
   }
 
-  std::cout << "DB opened successfully!\n";
-
-  const char* createSql =
-      "CREATE TABLE IF NOT EXISTS users ("
-      "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-      "username TEXT NOT NULL,"
-      "highscore INTEGER NOT NULL DEFAULT 0"
-      ");";
-
-  char* errMsg = nullptr;
-  rc = sqlite3_exec(db, createSql, nullptr, nullptr, &errMsg);
-  if (rc != SQLITE_OK) {
-    std::cerr << "Create table failed: " << (errMsg ? errMsg : "unknown") << "\n";
-    sqlite3_free(errMsg);
-    sqlite3_close(db);
+  GameSave loaded;
+  if (!db.loadGame("Melissa", loaded)) {
+    std::cout << "Load failed\n";
     return 1;
   }
 
-  std::cout << "Table check/create succeeded!\n";
-
-  sqlite3_close(db);
-  std::cout << "DB closed. Done.\n";
-  return 0;
+  std::cout << "Loaded: " << loaded.playerName
+            << " balance=" << loaded.balance
+            << " horses=" << loaded.horses.size() << "\n";
 }
-

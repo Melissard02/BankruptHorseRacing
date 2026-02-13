@@ -1,3 +1,6 @@
+#include "LoadScreen.h"
+#include "Database.h"
+#include "GameSave.h"
 #include "Better.h"
 #include "Horse.h"
 #include "Menu.h"
@@ -10,14 +13,64 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
+/* =============================
+ * ----------  HELPER FUNCTIONS  --------
+ * =============================*/
+static GameSave buildSave(const Player& player, const std::vector<Horse>& horses) {
+    GameSave s;
+    s.playerName = player.getName();
+    s.balance = player.getBalance();
+    s.income = player.getIncome();
+    s.bets = player.getBets();
+    s.betAmount = player.getBetAmount();
+    s.betHorseIndex = player.getBetHorseIndex();
 
+    s.horses.clear();
+    s.horses.reserve(horses.size());
+
+    for (const auto& h : horses) {
+        HorseSave hs;
+        hs.horseName = h.getName();
+        hs.legendary = h.isLegendary();
+        hs.speed = h.getSpeed();
+        hs.stamina = h.getStamina();
+        hs.popularity = h.getPopularity();
+        hs.luck = h.getLuck();
+        hs.wins = h.getWins();
+        hs.races = h.getRaces();
+        s.horses.push_back(hs);
+    }
+    return s;
+}
+
+static void applySave(const GameSave& s, Player& playerOut, std::vector<Horse>& horsesOut) {
+    playerOut = Player(s.playerName, s.balance, s.income);
+
+    // Optional: only if you add a Player setter:
+    // playerOut.setBetState(s.bets, s.betAmount, s.betHorseIndex);
+
+    horsesOut.clear();
+    horsesOut.reserve(s.horses.size());
+
+    for (const auto& hs : s.horses) {
+        Horse h(hs.horseName, hs.legendary);
+        h.setLoadedData(hs.speed, hs.stamina, hs.popularity, hs.luck, hs.wins, hs.races);
+        horsesOut.push_back(h);
+    }
+}
+
+/* =============================
+ * -------------------  MAIN  ------------------------
+ * =============================*/
 int main() {
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
 #endif
 
     // --- CREATE PLAYER ---
-    Player player = Player::loadFromFile("player.txt");
+    LoadScreen lScreen;
+    std::string playerName = lScreen.newGame();
+    Player player(playerName, 500, 100);
 
     // --- CREATE HORSES ---
     std::vector<Horse> horses = {
