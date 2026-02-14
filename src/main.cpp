@@ -75,59 +75,70 @@ int main() {
     Bank bank;
     std::vector<Horse> horses;
 
-    // --- LEGENDARY HORSES ---
     bool legendarySpawned = false;
     std::string legendaryName;
 
-    int startChoice = lScreen.loadScreen();
+    bool startedGame = false;
+    while (!startedGame) {
+        int startChoice = lScreen.loadScreen();
 
-    if (startChoice == 1) {
-        // NEW GAME
-        std::string playerName = lScreen.newGame();
-        player = Player(playerName, 500, 100);
-        bank.setSavings(1000);
+        if (startChoice == 1) {
+            // NEW GAME
+            std::string playerName = lScreen.newGame();
+            player = Player(playerName, 500, 100);
+            bank.setSavings(1000);
 
-        // --- CREATE HORSES ---
-        horses = {
-            Horse("Thunder"),
-            Horse("Cracker"),
-            Horse("Flash"),
-            Horse("Lantern"),
-            Horse("Werthers"),
-            Horse("Seltzer"),
-            Horse("Pumpkin"),
-            Horse("Echo")
-        };
-        for (auto& h : horses) h.generateStats();
-
-        // Legendary spawn
-        if (getRandom(1, 100) <= 5) {
-            std::vector<Horse> legendaries = {
-                Horse("Seabiscuit", true),
-                Horse("Shadowfax", true),
-                Horse("Spirit", true),
-                Horse("Twilight Sparkle", true),
-                Horse("Epona", true),
-                Horse("Potoooooooo", true),
-                Horse("Spamton G. Spamton", true),
+            horses = {
+                Horse("Thunder"),
+                Horse("Cracker"),
+                Horse("Flash"),
+                Horse("Lantern"),
+                Horse("Werthers"),
+                Horse("Seltzer"),
+                Horse("Pumpkin"),
+                Horse("Echo")
             };
+            for (auto& h : horses) h.generateStats();
 
-            Horse legendaryHorse = legendaries[getRandom(0, static_cast<int>(legendaries.size()) - 1)];
-            legendaryHorse.generateStats();
-            legendaryName = legendaryHorse.getName();
-            horses.push_back(legendaryHorse);
-            legendarySpawned = true;
+            // Legendary spawn
+            if (getRandom(1, 100) <= 5) {
+                std::vector<Horse> legendaries = {
+                    Horse("Seabiscuit", true),
+                    Horse("Shadowfax", true),
+                    Horse("Spirit", true),
+                    Horse("Twilight Sparkle", true),
+                    Horse("Epona", true),
+                    Horse("Potoooooooo", true),
+                    Horse("Spamton G. Spamton", true),
+                };
+
+                Horse legendaryHorse = legendaries[getRandom(0, static_cast<int>(legendaries.size()) - 1)];
+                legendaryHorse.generateStats();
+                legendaryName = legendaryHorse.getName();
+                horses.push_back(legendaryHorse);
+                legendarySpawned = true;
+            }
+            startedGame = true;
+        } else if (startChoice == 2) {
+            // LOAD GAME
+            bool loaded = lScreen.loadGame();
+            if (!loaded) {
+                continue;
+            }
+
+            applySave(lScreen.getSave(), player, bank, horses);
+
+            legendarySpawned = false;
+            legendaryName.clear();
+
+            startedGame = true;
+        } else if (startChoice == 0) {
+            return 0;
+        } else {
+            continue;
         }
-    } else if (startChoice == 2) {
-        // LOAD GAME
-        if (!lScreen.loadGame()) return 0;
-        applySave(lScreen.getSave(), player, bank, horses);
-
-        legendarySpawned = false;
-        legendaryName.clear();
-    } else {
-        return 0;
     }
+
 
     // --- NPC BETTERS ---
     std::vector<Better> npcs = {
