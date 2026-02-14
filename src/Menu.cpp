@@ -275,7 +275,7 @@ void Menu::bankMenu(Player &player, Bank &bank) const {
                     std::cin.get();
 
                 } else {
-                    bank.Transfer(player, amt, true);
+                    bank.transfer(player, amt, true);
                 }
 
 
@@ -289,7 +289,7 @@ void Menu::bankMenu(Player &player, Bank &bank) const {
                     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                     std::cin.get();
                 } else {
-                    bank.Transfer(player, amt, false);
+                    bank.transfer(player, amt, false);
                 }
             }
         }

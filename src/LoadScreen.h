@@ -6,9 +6,9 @@
 
 class LoadScreen {
 public:
-  static int loadScreen();
-  static std::string newGame();
-  static bool loadGame();
+  int loadScreen();
+  std::string newGame();
+  bool loadGame();
   // void settings();
 
   const GameSave& getSave() const { return gsave; }

@@ -11,12 +11,13 @@ class Bank {
   int savings;
 
   public:
-  Bank(const Player& player);
-  Bank(int startSavings, int startChecking);
+  Bank() = default;
+  explicit Bank(int startSavings);
 
-  void Transfer(Player& player, int amount, bool fromSavings);
+  void transfer(Player& player, int amount, bool fromSavings);
 
   int getSavings() const { return savings; };
+  void setSavings(int s) {savings = s;};
 
 };
 

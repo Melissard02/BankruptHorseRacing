@@ -25,6 +25,7 @@ struct HorseSave {
 struct GameSave {
   std::string playerName;
   int balance = 0;
+  int savings = 0;
   int income = 0;
   int bets = 0;
   int betAmount = 0;

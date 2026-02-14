@@ -38,6 +38,7 @@ bool Database::initializeSchema() {
     "id INTEGER PRIMARY KEY AUTOINCREMENT,"
     "name TEXT NOT NULL UNIQUE,"
     "balance INTEGER NOT NULL,"
+    "savings INTEGER NOT NULL DEFAULT 1000,"
     "income INTEGER NOT NULL,"
     "bets INTEGER NOT NULL DEFAULT 0,"
     "betAmount INTEGER NOT NULL DEFAULT 0,"
@@ -70,10 +71,10 @@ bool Database::saveGame(const GameSave &data) {
   if (!initializeSchema()) return false;
 
   const char* upsertPlayer =
-    "INSERT INTO players (name, balance, income, bets, betAmount, betHorseIndex)"
-    "VALUES (?, ?, ?, ?, ?, ?)"
+    "INSERT INTO players (name, balance, savings, income, bets, betAmount, betHorseIndex)"
+    "VALUES (?, ?, ?, ?, ?, ?, ?)"
     "ON CONFLICT(name) DO UPDATE SET "
-    "balance=excluded.balance, income=excluded.income, bets=excluded.bets,"
+    "balance=excluded.balance, savings=excluded.savings, income=excluded.income, bets=excluded.bets,"
     "betAmount=excluded.betAmount, betHorseIndex=excluded.betHorseIndex;";
 
   sqlite3_stmt* stmt = nullptr;
@@ -84,10 +85,11 @@ bool Database::saveGame(const GameSave &data) {
 
   sqlite3_bind_text(stmt, 1, data.playerName.c_str(), -1, SQLITE_TRANSIENT);
   sqlite3_bind_int(stmt, 2, data.balance);
-  sqlite3_bind_int(stmt, 3, data.income);
-  sqlite3_bind_int(stmt, 4, data.bets);
-  sqlite3_bind_int(stmt, 5, data.betAmount);
-  sqlite3_bind_int(stmt, 6, data.betHorseIndex);
+  sqlite3_bind_int(stmt, 3, data.savings);
+  sqlite3_bind_int(stmt, 4, data.income);
+  sqlite3_bind_int(stmt, 5, data.bets);
+  sqlite3_bind_int(stmt, 6, data.betAmount);
+  sqlite3_bind_int(stmt, 7, data.betHorseIndex);
 
   if (sqlite3_step(stmt) != SQLITE_DONE) {
     std::cerr << "Insert player failed: " << sqlite3_errmsg(db) << "\n";
@@ -165,7 +167,7 @@ bool Database::loadGame(const std::string& playerName, GameSave& outData) {
     outData.playerName = playerName;
 
     const char* selPlayer =
-        "SELECT id, balance, income, bets, betAmount, betHorseIndex "
+        "SELECT id, balance, savings, income, bets, betAmount, betHorseIndex "
         "FROM players WHERE name = ?;";
 
     sqlite3_stmt* stmt = nullptr;
@@ -184,10 +186,11 @@ bool Database::loadGame(const std::string& playerName, GameSave& outData) {
 
     int playerId = sqlite3_column_int(stmt, 0);
     outData.balance = sqlite3_column_int(stmt, 1);
-    outData.income = sqlite3_column_int(stmt, 2);
-    outData.bets = sqlite3_column_int(stmt, 3);
-    outData.betAmount = sqlite3_column_int(stmt, 4);
-    outData.betHorseIndex = sqlite3_column_int(stmt, 5);
+    outData.savings = sqlite3_column_int(stmt, 2);
+    outData.income = sqlite3_column_int(stmt, 3);
+    outData.bets = sqlite3_column_int(stmt, 4);
+    outData.betAmount = sqlite3_column_int(stmt, 5);
+    outData.betHorseIndex = sqlite3_column_int(stmt, 6);
     sqlite3_finalize(stmt);
 
 

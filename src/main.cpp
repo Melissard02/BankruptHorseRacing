@@ -16,10 +16,11 @@
 /* =============================
  * ----------  HELPER FUNCTIONS  --------
  * =============================*/
-static GameSave buildSave(const Player& player, const std::vector<Horse>& horses) {
+static GameSave buildSave(const Player& player, const Bank& bank, const std::vector<Horse>& horses) {
     GameSave s;
     s.playerName = player.getName();
     s.balance = player.getBalance();
+    s.savings = bank.getSavings();
     s.income = player.getIncome();
     s.bets = player.getBets();
     s.betAmount = player.getBetAmount();
@@ -43,11 +44,10 @@ static GameSave buildSave(const Player& player, const std::vector<Horse>& horses
     return s;
 }
 
-static void applySave(const GameSave& s, Player& playerOut, std::vector<Horse>& horsesOut) {
+static void applySave(const GameSave& s, Player& playerOut, Bank& bankOut, std::vector<Horse>& horsesOut) {
     playerOut = Player(s.playerName, s.balance, s.income);
 
-    // Optional: only if you add a Player setter:
-    // playerOut.setBetState(s.bets, s.betAmount, s.betHorseIndex);
+    bankOut.setSavings(s.savings);
 
     horsesOut.clear();
     horsesOut.reserve(s.horses.size());
@@ -67,49 +67,68 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
 #endif
 
-    // --- CREATE PLAYER ---
+    // --- LOAD SCREEN OBJECT ---
     LoadScreen lScreen;
-    std::string playerName = lScreen.newGame();
-    Player player(playerName, 500, 100);
 
-    // --- CREATE HORSES ---
-    std::vector<Horse> horses = {
-        Horse("Thunder"),
-        Horse("Cracker"),
-        Horse("Flash"),
-        Horse("Lantern"),
-        Horse("Werthers"),
-        Horse("Seltzer"),
-        Horse("Pumpkin"),
-        Horse("Echo")
-    };
-    for (auto& h : horses) {
-        h.generateStats();
-    }
+    // OBJECTS
+    Player player("cool dude", 500, 100);
+    Bank bank(1000);
+    std::vector<Horse> horses;
 
     // --- LEGENDARY HORSES ---
     bool legendarySpawned = false;
     std::string legendaryName;
 
-    if (getRandom(1, 100) <= 5) {
-        std::vector<Horse> legendaries = {
-            Horse("Seabiscuit", true),
-            Horse("Shadowfax", true),
-            Horse("Spirit", true),
-            Horse("Twilight Sparkle", true),
-            Horse("Epona", true),
-            Horse("Potoooooooo", true),
-            Horse("Spamton G. Spamton", true),
-        };
+    int startChoice = lScreen.loadScreen();
 
-        Horse legendaryHorse = legendaries[getRandom(0, legendaries.size() - 1)];
-        legendaryHorse.generateStats();
-        legendaryName = legendaryHorse.getName();
-        horses.push_back(legendaryHorse);
-        legendarySpawned = true;
+    if (startChoice == 1) {
+        // NEW GAME
+        std::string playerName = lScreen.newGame();
+        player = Player(playerName, 500, 100);
+
+        // --- CREATE HORSES ---
+        horses = {
+            Horse("Thunder"),
+            Horse("Cracker"),
+            Horse("Flash"),
+            Horse("Lantern"),
+            Horse("Werthers"),
+            Horse("Seltzer"),
+            Horse("Pumpkin"),
+            Horse("Echo")
+        };
+        for (auto& h : horses) h.generateStats();
+
+        // Legendary spawn
+        if (getRandom(1, 100) <= 5) {
+            std::vector<Horse> legendaries = {
+                Horse("Seabiscuit", true),
+                Horse("Shadowfax", true),
+                Horse("Spirit", true),
+                Horse("Twilight Sparkle", true),
+                Horse("Epona", true),
+                Horse("Potoooooooo", true),
+                Horse("Spamton G. Spamton", true),
+            };
+
+            Horse legendaryHorse = legendaries[getRandom(0, static_cast<int>(legendaries.size()) - 1)];
+            legendaryHorse.generateStats();
+            legendaryName = legendaryHorse.getName();
+            horses.push_back(legendaryHorse);
+            legendarySpawned = true;
+        }
+    } else if (startChoice == 2) {
+        // LOAD GAME
+        if (!lScreen.loadGame()) return 0;
+        applySave(lScreen.getSave(), player, bank, horses);
+
+        legendarySpawned = false;
+        legendaryName.clear();
+    } else {
+        return 0;
     }
 
-    // --- CREATE NPC BETTERS ---
+    // --- NPC BETTERS ---
     std::vector<Better> npcs = {
         Better("Candle", 300),
         Better("Mentos", 200),
@@ -117,12 +136,13 @@ int main() {
         Better("Mr. Monopoly", 1000000)
     };
 
-    // --- CREATE BANK ---
-    Bank bank(player);
-
-    // --- start menu system ---
+    // --- MENUS ---
     Race race(horses);
     Menu menu;
+
+    Database database;
+    database.initializeSchema();
+
     bool running = true;
 
     while (running) {
@@ -144,9 +164,8 @@ int main() {
             race = Race(horses);
             menu.raceMenu(race, horses, player, npcs, legendarySpawned, legendaryName);
             break;
-
         case 0:
-            player.saveToFile("player.txt");
+            database.saveGame(buildSave(player, bank, horses));
             running = false;
             break;
         default:
