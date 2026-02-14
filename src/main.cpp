@@ -72,7 +72,7 @@ int main() {
 
     // OBJECTS
     Player player("cool dude", 500, 100);
-    Bank bank(1000);
+    Bank bank;
     std::vector<Horse> horses;
 
     // --- LEGENDARY HORSES ---
@@ -85,6 +85,7 @@ int main() {
         // NEW GAME
         std::string playerName = lScreen.newGame();
         player = Player(playerName, 500, 100);
+        bank.setSavings(1000);
 
         // --- CREATE HORSES ---
         horses = {
